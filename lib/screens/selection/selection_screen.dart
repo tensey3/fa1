@@ -7,7 +7,7 @@ import 'live_song.dart';
 import 'machine_selection.dart';
 import 'name.dart';
 
-class SelectionScreen extends StatefulWidget {
+class SelectionScreen extends StatelessWidget {
   final VoidCallback onSave;
 
   const SelectionScreen({
@@ -16,85 +16,49 @@ class SelectionScreen extends StatefulWidget {
   });
 
   @override
-  SelectionScreenState createState() => SelectionScreenState();
-}
-
-class SelectionScreenState extends State<SelectionScreen> {
-  final Map<String, bool> _visibilityMap = {
-    'name': false,
-    'favoriteSong': false,
-    'genre': false,
-    'decade': false,
-    'machine': false,
-    'dam': false,
-    'joysound': false,
-  };
-
-  void _toggleVisibility(String section) {
-    setState(() {
-      _visibilityMap[section] = !_visibilityMap[section]!;
-    });
-  }
-
-  void _saveAllSettings() {
-    final userProfileProvider = Provider.of<UserProfileProvider>(context, listen: false);
-    userProfileProvider
-      ..setUserName(userProfileProvider.userName)
-      ..setFavoriteSongs(userProfileProvider.favoriteSongs)
-      ..setFavoriteGenres(userProfileProvider.favoriteGenres) // 修正箇所
-      ..setSelectedDecadesRanges(userProfileProvider.selectedDecadesRanges)
-      ..setSelectedMachines(userProfileProvider.selectedMachines);
-    widget.onSave();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: Column(
         children: [
           UserNameInput(
-            isVisible: _visibilityMap['name']!,
-            onToggleVisibility: () => _toggleVisibility('name'),
-            onSave: () {
-              _toggleVisibility('name'); // 保存後にセクションを閉じる
-            },
+            isVisible: true,
+            onToggleVisibility: () {},
+            onSave: onSave,
           ),
           FavoriteSongInput(
-            isVisible: _visibilityMap['favoriteSong']!,
-            onToggleVisibility: () => _toggleVisibility('favoriteSong'),
-            onSave: () {
-              _toggleVisibility('favoriteSong'); // 保存後にセクションを閉じる
-            },
+            isVisible: true,
+            onToggleVisibility: () {},
+            onSave: onSave,
           ),
           GenreSelection(
-            isVisible: _visibilityMap['genre']!,
-            onToggleVisibility: () => _toggleVisibility('genre'),
+            isVisible: true,
+            onToggleVisibility: () {},
             onSave: (selectedGenres) {
-              Provider.of<UserProfileProvider>(context, listen: false).setFavoriteGenres(selectedGenres); // 修正箇所
-              _toggleVisibility('genre');
+              Provider.of<UserProfileProvider>(context, listen: false).setFavoriteGenres(selectedGenres);
+              onSave();
             },
           ),
           DecadeSelection(
-            isVisible: _visibilityMap['decade']!,
-            onToggleVisibility: () => _toggleVisibility('decade'),
+            isVisible: true,
+            onToggleVisibility: () {},
             onSave: (selectedDecadesRanges) {
               Provider.of<UserProfileProvider>(context, listen: false).setSelectedDecadesRanges(selectedDecadesRanges);
-              _toggleVisibility('decade');
+              onSave();
             },
           ),
           MachineSelection(
-            isVisible: _visibilityMap['machine']!,
-            isDamVisible: _visibilityMap['dam']!,
-            isJoySoundVisible: _visibilityMap['joysound']!,
-            onToggleVisibility: () => _toggleVisibility('machine'),
-            onDamToggleVisibility: () => _toggleVisibility('dam'),
-            onJoySoundToggleVisibility: () => _toggleVisibility('joysound'),
-            onSave: () => _toggleVisibility('machine'),
+            isVisible: true,
+            isDamVisible: true,
+            isJoySoundVisible: true,
+            onToggleVisibility: () {},
+            onDamToggleVisibility: () {},
+            onJoySoundToggleVisibility: () {},
+            onSave: onSave,
           ),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: _saveAllSettings,
+              onPressed: onSave,
               child: const Text('全ての設定を保存'),
             ),
           ),

@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/user_profile_provider.dart';
-import 'selection/profile_editable_field.dart';
-import 'selection/profile_picture_widget.dart';
-import 'selection/profile_field_dropdown.dart';
+import 'selection/selection_screen.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
+
+  @override
+  ProfileScreenState createState() => ProfileScreenState();
+}
+
+class ProfileScreenState extends State<ProfileScreen> {
+  bool _isEditing = false;
 
   @override
   Widget build(BuildContext context) {
@@ -17,80 +22,159 @@ class ProfileScreen extends StatelessWidget {
         title: const Text('プロフィール'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.save),
+            icon: Icon(_isEditing ? Icons.save : Icons.settings),
             onPressed: () {
-              // 保存処理を追加
-              // 例: プロフィール情報をサーバーに送信する処理など
+              setState(() {
+                _isEditing = !_isEditing;
+              });
+              if (!_isEditing) {
+                // 保存が押されたときに設定を保存
+                userProfileProvider.setSaved(true);
+              }
             },
           ),
         ],
       ),
-      body: SingleChildScrollView(
+      body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildProfileHeader(userProfileProvider),
+              const SizedBox(height: 20),
+              if (_isEditing)
+                SelectionScreen(
+                  onSave: () {
+                    setState(() {
+                      _isEditing = false;
+                    });
+                  },
+                )
+              else
+                _buildProfileDetails(userProfileProvider),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProfileHeader(UserProfileProvider userProfileProvider) {
+    return Row(
+      children: [
+        CircleAvatar(
+          radius: 40,
+          backgroundImage: AssetImage('assets/images/profile_picture.png'),
+        ),
+        const SizedBox(width: 20),
+        Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ProfilePictureWidget(
-              imagePath: userProfileProvider.profileImagePath,
-              onImagePicked: (newImagePath) {
-                userProfileProvider.setProfileImage(newImagePath);
-              },
+            Text(
+              userProfileProvider.userName,
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 20),
-            ProfileEditableField(
-              label: 'ユーザー名',
-              value: userProfileProvider.userName,
-              onSave: (newValue) {
-                userProfileProvider.setUserName(newValue);
-              },
-            ),
-            const SizedBox(height: 20),
-            ProfileEditableField(
-              label: '自己紹介',
-              value: userProfileProvider.bio,
-              maxLines: 3,
-              onSave: (newValue) {
-                userProfileProvider.setBio(newValue);
-              },
-            ),
-            const SizedBox(height: 20),
-            ProfileFieldDropdown(
-              label: 'カラオケスキルレベル',
-              value: userProfileProvider.karaokeSkillLevel,
-              options: const ['初心者', '中級者', '上級者'],
-              onChanged: (newValue) {
-                userProfileProvider.setKaraokeSkillLevel(newValue!);
-              },
-            ),
-            const SizedBox(height: 20),
-            ProfileFieldDropdown(
-              label: 'カラオケの頻度',
-              value: userProfileProvider.karaokeFrequency,
-              options: const ['週に1回', '月に数回', '年に数回'],
-              onChanged: (newValue) {
-                userProfileProvider.setKaraokeFrequency(newValue!);
-              },
-            ),
-            const SizedBox(height: 20),
-            ProfileFieldDropdown(
-              label: 'カラオケの目的',
-              value: userProfileProvider.karaokePurpose,
-              options: const ['楽しむため', '練習のため', '友達と過ごすため', '大会に参加するため'],
-              onChanged: (newValue) {
-                userProfileProvider.setKaraokePurpose(newValue!);
-              },
-            ),
-            const SizedBox(height: 20),
-            ProfileEditableField(
-              label: '好きなジャンル',
-              value: userProfileProvider.favoriteGenres.join(', '),
-              onSave: (newValue) {
-                userProfileProvider.setFavoriteGenres(newValue.split(', '));
-              },
+            Text(
+              'ステータス: ${userProfileProvider.favoriteSong}',
+              style: const TextStyle(fontSize: 16, color: Colors.grey),
             ),
           ],
         ),
-      ),
+      ],
+    );
+  }
+
+  Widget _buildProfileDetails(UserProfileProvider userProfileProvider) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '自己紹介: ${userProfileProvider.bio}',
+          style: const TextStyle(fontSize: 16),
+        ),
+        const SizedBox(height: 10),
+        Text(
+          'カラオケスキル: ${userProfileProvider.karaokeSkillLevel}',
+          style: const TextStyle(fontSize: 16),
+        ),
+        const SizedBox(height: 10),
+        Text(
+          'カラオケの頻度: ${userProfileProvider.karaokeFrequency}',
+          style: const TextStyle(fontSize: 16),
+        ),
+        const SizedBox(height: 10),
+        Text(
+          'カラオケの目的: ${userProfileProvider.karaokePurpose}',
+          style: const TextStyle(fontSize: 16),
+        ),
+        const SizedBox(height: 20),
+        _buildGenresSection(userProfileProvider),
+        const SizedBox(height: 20),
+        _buildDecadesSection(userProfileProvider),
+        const SizedBox(height: 20),
+        _buildMachinesSection(userProfileProvider),
+      ],
+    );
+  }
+
+  Widget _buildGenresSection(UserProfileProvider userProfileProvider) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          '好きなジャンル:',
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+        Wrap(
+          spacing: 8.0,
+          children: userProfileProvider.favoriteGenres.map((genre) {
+            return Chip(
+              label: Text(genre),
+            );
+          }).toList(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDecadesSection(UserProfileProvider userProfileProvider) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          '好きな年代:',
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+        Wrap(
+          spacing: 8.0,
+          children: userProfileProvider.selectedDecadesRanges.map((range) {
+            return Chip(
+              label: Text('${range.start.round()} - ${range.end.round()}'),
+            );
+          }).toList(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMachinesSection(UserProfileProvider userProfileProvider) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          '好きな機種:',
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+        Wrap(
+          spacing: 8.0,
+          children: userProfileProvider.selectedMachines.map((machine) {
+            return Chip(
+              label: Text(machine),
+            );
+          }).toList(),
+        ),
+      ],
     );
   }
 }
