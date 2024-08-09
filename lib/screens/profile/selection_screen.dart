@@ -1,76 +1,76 @@
-import 'package:fa1/screens/profile/constants.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../../providers/user_profile_provider.dart';
-import 'profile_picture_widget.dart';
-import 'profile_editable_field.dart';
-import 'profile_field_dropdown.dart';
-
 
 class SelectionScreen extends StatelessWidget {
-  const SelectionScreen({super.key});
+  final String title;
+  final String initialValue;
+  final List<String>? items;
+  final ValueChanged<String> onSave;
+
+  const SelectionScreen({
+    super.key,
+    required this.title,
+    required this.initialValue,
+    this.items,
+    required this.onSave,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final userProfileProvider = Provider.of<UserProfileProvider>(context);
+    String selectedValue = initialValue; // ここで初期値がnullの場合に空文字に設定
+    final TextEditingController controller =
+        TextEditingController(text: selectedValue);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('プロフィール設定'),
-        backgroundColor: Colors.black87,  // プロフィール画面と同じ色
+        title: Text(title),
+        backgroundColor: Colors.black87,
       ),
-      backgroundColor: Colors.grey[900],  // プロフィール画面と同じ色
+      backgroundColor: Colors.grey[900],
       body: Padding(
-        padding: const EdgeInsets.all(16.0),  // プロフィール画面と同じパディング
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ProfilePictureWidget(
-              imagePath: userProfileProvider.profileImagePath,
-              onImagePicked: (path) => userProfileProvider.setProfileImagePath(path),
-              borderColor: Colors.white,  // プロフィール画面に合わせたボーダー
-            ),
-            const SizedBox(height: 20),
-            ProfileEditableField(
-              label: 'ユーザー名',
-              value: userProfileProvider.userName,
-              onSave: (value) => userProfileProvider.setUserName(value),
-              textStyle: const TextStyle(fontSize: 16, color: Colors.white),  // プロフィール画面に合わせたテキストスタイル
-            ),
-            const SizedBox(height: 20),
-            ProfileEditableField(
-              label: '自己紹介',
-              value: userProfileProvider.bio,
-              maxLines: 3,
-              onSave: (value) => userProfileProvider.setBio(value),
-              textStyle: const TextStyle(fontSize: 16, color: Colors.white),  // プロフィール画面に合わせたテキストスタイル
-            ),
-            const SizedBox(height: 20),
-            ProfileFieldDropdown(
-              label: 'カラオケスキル',
-              value: userProfileProvider.karaokeSkillLevel,
-              options: Constants.karaokeSkillLevels,
-              onChanged: (value) => userProfileProvider.setKaraokeSkillLevel(value!),
-              textStyle: const TextStyle(fontSize: 16, color: Colors.white),  // プロフィール画面に合わせたテキストスタイル
-            ),
-            const SizedBox(height: 20),
-            ProfileFieldDropdown(
-              label: 'カラオケの頻度',
-              value: userProfileProvider.karaokeFrequency,
-              options: Constants.karaokeFrequencies,
-              onChanged: (value) => userProfileProvider.setKaraokeFrequency(value!),
-              textStyle: const TextStyle(fontSize: 16, color: Colors.white),  // プロフィール画面に合わせたテキストスタイル
-            ),
-            const SizedBox(height: 20),
-            ProfileFieldDropdown(
-              label: 'カラオケの目的',
-              value: userProfileProvider.karaokePurpose,
-              options: Constants.karaokePurposes,
-              onChanged: (value) => userProfileProvider.setKaraokePurpose(value!),
-              textStyle: const TextStyle(fontSize: 16, color: Colors.white),  // プロフィール画面に合わせたテキストスタイル
-            ),
-          ],
-        ),
+        padding: const EdgeInsets.all(16.0),
+        child: items == null || items!.isEmpty
+            ? TextField(
+                controller: controller,
+                style: const TextStyle(color: Colors.white),
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  filled: true,
+                  fillColor: Colors.grey,
+                  hintText: '入力してください',
+                  hintStyle: TextStyle(color: Colors.white54),
+                ),
+              )
+            : DropdownButtonFormField<String>(
+                value: selectedValue.isNotEmpty ? selectedValue : items!.first,
+                items: items!.map((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value, style: const TextStyle(color: Colors.white)),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  selectedValue = value!;
+                },
+                style: const TextStyle(color: Colors.white),
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  filled: true,
+                  fillColor: Colors.grey,
+                ),
+                dropdownColor: Colors.grey[850],
+              ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          if (items == null || items!.isEmpty) {
+            onSave(controller.text);
+          } else {
+            onSave(selectedValue);
+          }
+          Navigator.of(context).pop();
+        },
+        backgroundColor: Colors.orange,
+        child: const Icon(Icons.save),
       ),
     );
   }

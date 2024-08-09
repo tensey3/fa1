@@ -1,8 +1,8 @@
-import 'package:fa1/screens/profile/selection_screen.dart';
+import 'package:fa1/screens/profile/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/user_profile_provider.dart';
-import 'profile_header.dart';
+import 'selection_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -15,66 +15,83 @@ class ProfileScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('プロフィール'),
         backgroundColor: Colors.black87,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings),
-            color: Colors.amberAccent,
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => const SelectionScreen(),
-                ),
-              );
-            },
+      ),
+      backgroundColor: Colors.grey[900],
+      body: ListView(
+        padding: const EdgeInsets.all(16.0),
+        children: [
+          _buildProfileTile(
+            context,
+            label: '自己紹介',
+            value: userProfileProvider.bio,
+            onTap: () => Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => SelectionScreen(
+                title: '自己紹介を編集',
+                initialValue: userProfileProvider.bio,
+                onSave: (value) => userProfileProvider.setBio(value),
+              ),
+            )),
+          ),
+          const SizedBox(height: 10),
+          _buildProfileTile(
+            context,
+            label: 'カラオケスキル',
+            value: userProfileProvider.karaokeSkillLevel,
+            onTap: () => Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => SelectionScreen(
+                title: 'カラオケスキルを編集',
+                initialValue: userProfileProvider.karaokeSkillLevel,
+                items: Constants.karaokeSkillLevels,
+                onSave: (value) => userProfileProvider.setKaraokeSkillLevel(value),
+              ),
+            )),
+          ),
+          const SizedBox(height: 10),
+          _buildProfileTile(
+            context,
+            label: 'カラオケの頻度',
+            value: userProfileProvider.karaokeFrequency,
+            onTap: () => Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => SelectionScreen(
+                title: 'カラオケの頻度を編集',
+                initialValue: userProfileProvider.karaokeFrequency,
+                items: Constants.karaokeFrequencies,
+                onSave: (value) => userProfileProvider.setKaraokeFrequency(value),
+              ),
+            )),
+          ),
+          const SizedBox(height: 10),
+          _buildProfileTile(
+            context,
+            label: 'カラオケの目的',
+            value: userProfileProvider.karaokePurpose,
+            onTap: () => Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => SelectionScreen(
+                title: 'カラオケの目的を編集',
+                initialValue: userProfileProvider.karaokePurpose,
+                items: Constants.karaokePurposes,
+                onSave: (value) => userProfileProvider.setKaraokePurpose(value),
+              ),
+            )),
           ),
         ],
-      ),
-      backgroundColor: Colors.grey[850],
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const ProfileHeader(isEditing: false),
-            const SizedBox(height: 20),
-            _buildProfileDetail(
-                '自己紹介', userProfileProvider.bio),
-            _buildProfileDetail(
-                'カラオケスキル', userProfileProvider.karaokeSkillLevel),
-            _buildProfileDetail(
-                'カラオケの頻度', userProfileProvider.karaokeFrequency),
-            _buildProfileDetail(
-                'カラオケの目的', userProfileProvider.karaokePurpose),
-          ],
-        ),
       ),
     );
   }
 
-  Widget _buildProfileDetail(String label, String? value) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 20), // 間隔を広げて読みやすくする
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 18,
-              color: Colors.amberAccent, // ラベルの色を統一
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 5),
-          Text(
-            value ?? '未設定',
-            style: const TextStyle(
-              fontSize: 16,
-              color: Colors.white70,
-            ),
-          ),
-        ],
+  Widget _buildProfileTile(BuildContext context,
+      {required String label, required String value, required VoidCallback onTap}) {
+    return ListTile(
+      title: Text(
+        label,
+        style: const TextStyle(fontSize: 16, color: Colors.white),
       ),
+      subtitle: Text(
+        value,
+        style: const TextStyle(fontSize: 14, color: Colors.white70),
+      ),
+      trailing: const Icon(Icons.arrow_forward_ios, color: Colors.white54),
+      onTap: onTap,
     );
   }
 }
