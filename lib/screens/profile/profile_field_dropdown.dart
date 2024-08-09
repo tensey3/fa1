@@ -11,7 +11,7 @@ class ProfileFieldDropdown extends StatelessWidget {
     required this.label,
     required this.value,
     required this.options,
-    required this.onChanged,
+    required this.onChanged, required TextStyle textStyle,
   });
 
   @override

@@ -9,7 +9,7 @@ class ProfilePictureWidget extends StatelessWidget {
   const ProfilePictureWidget({
     super.key,
     this.imagePath,
-    required this.onImagePicked,
+    required this.onImagePicked, required Color borderColor,
   });
 
   Future<void> _pickImage(BuildContext context) async {

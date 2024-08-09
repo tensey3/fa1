@@ -11,7 +11,7 @@ class ProfileEditableField extends StatelessWidget {
     required this.label,
     required this.value,
     this.maxLines = 1,
-    required this.onSave,
+    required this.onSave, required TextStyle textStyle,
   });
 
   @override
