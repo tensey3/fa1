@@ -3,21 +3,21 @@ import 'package:flutter/material.dart';
 class UserProfileProvider extends ChangeNotifier {
   // プロフィール情報
   String _userName = 'ユーザー名';
-  String _bio = '';  // プロフィールの自己紹介文
-  String _profileImagePath = '';  // プロフィール画像のパス
-  String _karaokeSkillLevel = '初心者';  // カラオケのスキルレベル
-  String _karaokeFrequency = '週に1回';  // カラオケの頻度
-  String _karaokePurpose = '楽しむため';  // カラオケの目的
+  String _bio = '';
+  String _profileImagePath = '';
+  String _karaokeSkillLevel = '初心者';
+  String _karaokeFrequency = '週に1回';
+  String _karaokePurpose = '楽しむため';
 
-  // 不変のリストを使用して、変更されないことを保証
-  final List<String> _favoriteSongs = ['よく歌う曲'];  // よく歌う曲
-  final List<String> _favoriteGenres = ['ポップ'];  // 好きなジャンル
-  final List<RangeValues> _selectedDecadesRanges = [const RangeValues(1940, 2024)];  // 好きな年代
-  final List<String> _selectedMachines = [];  // 好きな機種
+  // リストを final にせず、内部でリストの状態を変更できるようにします。
+  List<String> _favoriteSongs = ['よく歌う曲'];
+  List<String> _favoriteGenres = ['ポップ'];
+  List<RangeValues> _selectedDecadesRanges = [const RangeValues(1940, 2024)];
+  List<String> _selectedMachines = [];
 
   // プロフィールの表示設定
-  bool _isUserNameVisible = true;  // ユーザー名の表示・非表示を管理
-  bool _isSaved = false;  // 保存状態を管理
+  bool _isUserNameVisible = true;
+  bool _isSaved = false;
 
   // ゲッター
   String get userName => _userName;
@@ -26,10 +26,10 @@ class UserProfileProvider extends ChangeNotifier {
   String get karaokeSkillLevel => _karaokeSkillLevel;
   String get karaokeFrequency => _karaokeFrequency;
   String get karaokePurpose => _karaokePurpose;
-  List<String> get favoriteSongs => _favoriteSongs;
-  List<String> get favoriteGenres => _favoriteGenres;
-  List<RangeValues> get selectedDecadesRanges => _selectedDecadesRanges;
-  List<String> get selectedMachines => _selectedMachines;
+  List<String> get favoriteSongs => List.unmodifiable(_favoriteSongs); // 不変リストを返す
+  List<String> get favoriteGenres => List.unmodifiable(_favoriteGenres); // 不変リストを返す
+  List<RangeValues> get selectedDecadesRanges => List.unmodifiable(_selectedDecadesRanges); // 不変リストを返す
+  List<String> get selectedMachines => List.unmodifiable(_selectedMachines); // 不変リストを返す
   bool get isUserNameVisible => _isUserNameVisible;
   bool get isSaved => _isSaved;
 
@@ -46,7 +46,7 @@ class UserProfileProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setProfileImage(String path) {
+  void setProfileImagePath(String path) {
     _profileImagePath = path;
     notifyListeners();
   }
@@ -67,9 +67,7 @@ class UserProfileProvider extends ChangeNotifier {
   }
 
   void setFavoriteSongs(List<String> songs) {
-    _favoriteSongs
-      ..clear()  // リストをクリア
-      ..addAll(songs);  // 新しいリストを追加
+    _favoriteSongs = List.from(songs); // 直接リストを再作成
     notifyListeners();
   }
 
@@ -79,9 +77,7 @@ class UserProfileProvider extends ChangeNotifier {
   }
 
   void setFavoriteGenres(List<String> genres) {
-    _favoriteGenres
-      ..clear()  // リストをクリア
-      ..addAll(genres);  // 新しいリストを追加
+    _favoriteGenres = List.from(genres); // 直接リストを再作成
     notifyListeners();
   }
 
@@ -95,9 +91,7 @@ class UserProfileProvider extends ChangeNotifier {
   }
 
   void setSelectedDecadesRanges(List<RangeValues> ranges) {
-    _selectedDecadesRanges
-      ..clear()  // リストをクリア
-      ..addAll(ranges);  // 新しいリストを追加
+    _selectedDecadesRanges = List.from(ranges); // 直接リストを再作成
     notifyListeners();
   }
 
@@ -121,9 +115,7 @@ class UserProfileProvider extends ChangeNotifier {
   }
 
   void setSelectedMachines(List<String> machines) {
-    _selectedMachines
-      ..clear()  // リストをクリア
-      ..addAll(machines);  // 新しいリストを追加
+    _selectedMachines = List.from(machines); // 直接リストを再作成
     notifyListeners();
   }
 
@@ -147,8 +139,7 @@ class UserProfileProvider extends ChangeNotifier {
   }
 
   void addMachine(String machine) {
-  _selectedMachines.add(machine);
-  notifyListeners();
-  
-}
+    _selectedMachines.add(machine);
+    notifyListeners();
+  }
 }

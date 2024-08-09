@@ -32,28 +32,36 @@ class HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[900],
       body: SafeArea(
         child: _widgetOptions.elementAt(_selectedIndex),
       ),
       bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
+        items: <BottomNavigationBarItem>[
+          const BottomNavigationBarItem(
             icon: Icon(Icons.person),
             label: 'プロフィール',
           ),
-          BottomNavigationBarItem(
+          const BottomNavigationBarItem(
             icon: Icon(Icons.search),
             label: 'マッチング',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.add_box_outlined), // 中央の投稿ボタンのアイコン
+            icon: Container(
+              padding: const EdgeInsets.all(8.0),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.amber[800],
+              ),
+              child: const Icon(Icons.add_box_outlined, color: Colors.white),
+            ),
             label: '投稿',
           ),
-          BottomNavigationBarItem(
+          const BottomNavigationBarItem(
             icon: Icon(Icons.chat),
             label: 'チャット',
           ),
-          BottomNavigationBarItem(
+          const BottomNavigationBarItem(
             icon: Icon(Icons.event),
             label: 'イベント',
           ),
@@ -62,8 +70,10 @@ class HomeScreenState extends State<HomeScreen> {
         selectedItemColor: Colors.amber[800],
         unselectedItemColor: Colors.grey,
         onTap: _onItemTapped,
+        backgroundColor: Colors.black87,
         showSelectedLabels: true,
         showUnselectedLabels: true,
+        type: BottomNavigationBarType.fixed,
       ),
     );
   }

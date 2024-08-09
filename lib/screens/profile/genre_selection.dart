@@ -1,115 +1,87 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/user_profile_provider.dart';
+import 'constants.dart'; // 定数をインポート
 
-class GenreSelection extends StatefulWidget {
-  final bool isVisible;
-  final VoidCallback onToggleVisibility;
-  final ValueChanged<List<String>> onSave;
+class GenreSelection extends StatelessWidget {
+  final bool isEditing;
 
   const GenreSelection({
     super.key,
-    required this.isVisible,
-    required this.onToggleVisibility,
-    required this.onSave,
+    required this.isEditing,
   });
 
   @override
-  GenreSelectionState createState() => GenreSelectionState();
+  Widget build(BuildContext context) {
+    final userProfileProvider = Provider.of<UserProfileProvider>(context);
+    final selectedGenres = userProfileProvider.favoriteGenres;
+
+    return DefaultTabController(
+      length: Constants.genres.length,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          TabBar(
+            isScrollable: true,
+            labelColor: Colors.black,
+            unselectedLabelColor: Colors.grey,
+            indicatorColor: Colors.blue,
+            tabs: Constants.genres.map((genre) {
+              return Tab(
+                text: genre,
+                icon: selectedGenres.contains(genre)
+                    ? const Icon(Icons.check_circle, color: Colors.green)
+                    : const Icon(Icons.circle_outlined, color: Colors.grey),
+              );
+            }).toList(),
+          ),
+          SizedBox(
+            height: 200, // タブの下に表示する内容の高さを指定
+            child: TabBarView(
+              children: Constants.genres.map((genre) {
+                return GenreContent(genre: genre, isEditing: isEditing);
+              }).toList(),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
-class GenreSelectionState extends State<GenreSelection> {
-  static const List<String> _genres = [
-    'ポップ',
-    'ロック',
-    'ジャズ',
-    'ヒップホップ',
-    'クラシック',
-    '演歌',
-    'アニメ',
-    'VOCALOID',
-  ];
+class GenreContent extends StatelessWidget {
+  final String genre;
+  final bool isEditing;
 
-  bool _isSaving = false;
+  const GenreContent({
+    super.key,
+    required this.genre,
+    required this.isEditing,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final userProfileProvider = context.watch<UserProfileProvider>();
-    final selectedGenres = userProfileProvider.favoriteGenres; // selectedGenresをfavoriteGenresに変更
+    final userProfileProvider = Provider.of<UserProfileProvider>(context);
+    final isSelected = userProfileProvider.favoriteGenres.contains(genre);
 
-    return Column(
-      children: [
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: widget.onToggleVisibility,
-            child: const Text('ジャンル選択'),
+    return GestureDetector(
+      onTap: isEditing
+          ? () {
+              userProfileProvider.toggleGenre(genre);
+            }
+          : null,
+      child: Container(
+        color: isSelected ? Colors.blueAccent : Colors.grey[300],
+        child: Center(
+          child: Text(
+            genre,
+            style: TextStyle(
+              fontSize: 18,
+              color: isSelected ? Colors.white : Colors.black,
+            ),
           ),
         ),
-        if (widget.isVisible && !_isSaving)
-          Column(
-            children: [
-              GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 10,
-                  mainAxisSpacing: 10,
-                ),
-                itemCount: _genres.length,
-                itemBuilder: (context, index) {
-                  final genre = _genres[index];
-                  final isSelected = selectedGenres.contains(genre);
-
-                  return GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        userProfileProvider.toggleGenre(genre);
-                      });
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: isSelected ? Colors.blueAccent : Colors.grey[300],
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                          color: isSelected ? Colors.blue : Colors.grey,
-                          width: 2,
-                        ),
-                      ),
-                      child: Center(
-                        child: Text(
-                          genre,
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: isSelected ? Colors.white : Colors.black,
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-              const SizedBox(height: 20),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {
-                    setState(() {
-                      _isSaving = true;
-                    });
-                    widget.onSave(selectedGenres);
-                    widget.onToggleVisibility();
-                    setState(() {
-                      _isSaving = false;
-                    });
-                  },
-                  child: const Text('ジャンルを保存'),
-                ),
-              ),
-            ],
-          ),
-      ],
+      ),
     );
   }
 }

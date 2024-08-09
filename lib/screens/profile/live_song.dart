@@ -21,24 +21,14 @@ class FavoriteSongInput extends StatefulWidget {
 class FavoriteSongInputState extends State<FavoriteSongInput> {
   final List<TextEditingController> _controllers = [];
   bool _isSaving = false;
-  UserProfileProvider? _userProfileProvider;
 
   @override
   void initState() {
     super.initState();
-    // コントローラの初期化は didChangeDependencies で行う
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (_userProfileProvider == null) {
-      _userProfileProvider = Provider.of<UserProfileProvider>(context);
-      _controllers.addAll(_userProfileProvider!.favoriteSongs
-          .map((song) => TextEditingController(text: song))
-          .toList());
-      _userProfileProvider!.addListener(_onSaveComplete);
-    }
+    final userProfileProvider = Provider.of<UserProfileProvider>(context, listen: false);
+    _controllers.addAll(userProfileProvider.favoriteSongs
+        .map((song) => TextEditingController(text: song))
+        .toList());
   }
 
   @override
@@ -46,7 +36,6 @@ class FavoriteSongInputState extends State<FavoriteSongInput> {
     for (var controller in _controllers) {
       controller.dispose();
     }
-    _userProfileProvider?.removeListener(_onSaveComplete);
     super.dispose();
   }
 
@@ -60,19 +49,13 @@ class FavoriteSongInputState extends State<FavoriteSongInput> {
     setState(() {
       _isSaving = true;
     });
+    final userProfileProvider = Provider.of<UserProfileProvider>(context, listen: false);
     List<String> favoriteSongs = _controllers.map((controller) => controller.text).toList();
-    _userProfileProvider!.setFavoriteSongs(favoriteSongs);
-    _userProfileProvider!.setSaved(true); // 保存完了を通知
-  }
-
-  void _onSaveComplete() {
-    if (_userProfileProvider!.isSaved) {
-      setState(() {
-        _isSaving = false;
-      });
-      widget.onToggleVisibility(); // 保存後にセクションを閉じる
-      _userProfileProvider!.setSaved(false); // フラグをリセット
-    }
+    userProfileProvider.setFavoriteSongs(favoriteSongs);
+    setState(() {
+      _isSaving = false;
+      widget.onSave(); // 保存後にセクションを閉じる
+    });
   }
 
   @override
@@ -100,9 +83,6 @@ class FavoriteSongInputState extends State<FavoriteSongInput> {
                     child: TextField(
                       controller: controller,
                       textAlign: TextAlign.start,
-                      onChanged: (text) {
-                        // テキストフィールドの変更を反映する場合は、必要に応じて処理を追加
-                      },
                     ),
                   )),
               IconButton(

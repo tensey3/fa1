@@ -29,7 +29,7 @@ class DecadeSelectionState extends State<DecadeSelection> {
     setState(() {
       _isSaving = false;
     });
-    widget.onToggleVisibility(); // 保存後にセクションを閉じる
+    widget.onToggleVisibility(); 
   }
 
   @override
