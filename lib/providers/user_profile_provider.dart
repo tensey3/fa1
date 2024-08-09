@@ -145,4 +145,10 @@ class UserProfileProvider extends ChangeNotifier {
     _isSaved = value;
     notifyListeners();
   }
+
+  void addMachine(String machine) {
+  _selectedMachines.add(machine);
+  notifyListeners();
+  
+}
 }

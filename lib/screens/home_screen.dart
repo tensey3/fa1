@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'profile_screen.dart'; // ProfileScreenをインポート
+import 'profile/profile_screen.dart'; // ProfileScreenをインポート
 import 'match_screen.dart';
 import 'chat_screen.dart';
 import 'event_screen.dart';
