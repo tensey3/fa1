@@ -7,10 +7,31 @@ import 'live_song.dart';
 import 'machine.dart';
 import 'constants.dart';
 
-class SelectionScreen extends StatelessWidget {
+class SelectionScreen extends StatefulWidget {
   final bool isEditing;
 
   const SelectionScreen({super.key, required this.isEditing});
+
+  @override
+  // ignore: library_private_types_in_public_api
+  _SelectionScreenState createState() => _SelectionScreenState();
+}
+
+class _SelectionScreenState extends State<SelectionScreen> {
+  late TextEditingController _bioController;
+
+  @override
+  void initState() {
+    super.initState();
+    final userProfileProvider = Provider.of<UserProfileProvider>(context, listen: false);
+    _bioController = TextEditingController(text: userProfileProvider.bio);
+  }
+
+  @override
+  void dispose() {
+    _bioController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,15 +49,8 @@ class SelectionScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 自己紹介の編集フィールド
-              _buildTextField(
-                label: '自己紹介',
-                initialValue: userProfileProvider.bio,
-                onChanged: (value) => userProfileProvider.setBio(value),
-              ),
+              _buildBioField(),
               const SizedBox(height: 20),
-
-              // カラオケスキルの編集フィールド
               _buildDropdown(
                 label: 'カラオケスキル',
                 value: userProfileProvider.karaokeSkillLevel,
@@ -44,8 +58,6 @@ class SelectionScreen extends StatelessWidget {
                 onChanged: (value) => userProfileProvider.setKaraokeSkillLevel(value!),
               ),
               const SizedBox(height: 20),
-
-              // カラオケの頻度の編集フィールド
               _buildDropdown(
                 label: 'カラオケの頻度',
                 value: userProfileProvider.karaokeFrequency,
@@ -53,8 +65,6 @@ class SelectionScreen extends StatelessWidget {
                 onChanged: (value) => userProfileProvider.setKaraokeFrequency(value!),
               ),
               const SizedBox(height: 20),
-
-              // カラオケの目的の編集フィールド
               _buildDropdown(
                 label: 'カラオケの目的',
                 value: userProfileProvider.karaokePurpose,
@@ -62,12 +72,8 @@ class SelectionScreen extends StatelessWidget {
                 onChanged: (value) => userProfileProvider.setKaraokePurpose(value!),
               ),
               const SizedBox(height: 20),
-
-              // 好きなジャンル
-              GenreSelection(isEditing: isEditing),
+              GenreSelection(isEditing: widget.isEditing),
               const SizedBox(height: 20),
-
-              // 年代選択セクション
               DecadeSelection(
                 isVisible: true,
                 onToggleVisibility: () {},
@@ -76,8 +82,6 @@ class SelectionScreen extends StatelessWidget {
                 },
               ),
               const SizedBox(height: 20),
-
-              // よく歌う曲入力セクション
               FavoriteSongInput(
                 isVisible: true,
                 onToggleVisibility: () {},
@@ -86,18 +90,14 @@ class SelectionScreen extends StatelessWidget {
                 },
               ),
               const SizedBox(height: 20),
-
-              // カラオケ機種選択セクション
-              MachineSelection(isEditing: isEditing),
+              MachineSelection(isEditing: widget.isEditing),
               const SizedBox(height: 20),
-
-              // 保存ボタン
               Center(
                 child: ElevatedButton(
                   onPressed: () {
-                    // プロフィールの保存処理
+                    userProfileProvider.setBio(_bioController.text); // Bioの保存
                     userProfileProvider.setSaved(true);
-                    Navigator.of(context).pop(); // 編集を終了して戻る
+                    Navigator.of(context).pop();
                   },
                   style: ElevatedButton.styleFrom(
                     foregroundColor: Colors.white, backgroundColor: Colors.red[800],
@@ -112,26 +112,24 @@ class SelectionScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTextField({
-    required String label,
-    required String initialValue,
-    required ValueChanged<String> onChanged,
-  }) {
+  Widget _buildBioField() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          label,
+          '自己紹介',
           style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.blue[900]),
         ),
         TextField(
-          controller: TextEditingController(text: initialValue),
-          onChanged: onChanged,
+          controller: _bioController,
+          onChanged: (value) {
+            // ここでリスナーに通知する場合、必要に応じて変更可能
+          },
           decoration: const InputDecoration(
             border: OutlineInputBorder(),
             filled: true,
             fillColor: Colors.white,
-            hintText: '入力してください',
+            hintText: '自己紹介を入力してください',
           ),
         ),
       ],
