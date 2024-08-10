@@ -17,7 +17,7 @@ class ProfileScreen extends StatelessWidget {
         backgroundColor: const Color(0xFFFFA726), // 明るいオレンジ色
         actions: [
           Padding(
-            padding: const EdgeInsets.only(right: 8.0), 
+            padding: const EdgeInsets.only(right: 8.0),
             child: ElevatedButton.icon(
               onPressed: () {
                 Navigator.of(context).push(
@@ -31,7 +31,7 @@ class ProfileScreen extends StatelessWidget {
                 backgroundColor: const Color(0xFFFF7043), // 少し濃い目のオレンジ色
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(25), 
+                  borderRadius: BorderRadius.circular(25),
                 ),
               ),
               icon: const Icon(Icons.edit, size: 18),
@@ -52,7 +52,7 @@ class ProfileScreen extends StatelessWidget {
               Color(0xFFFFF59D), // 明るいイエロー
               Color(0xFFFFFDE7), // 非常に薄いイエロー
             ],
-            stops: [0.0, 0.6], 
+            stops: [0.0, 0.6],
           ),
         ),
         child: SingleChildScrollView(
@@ -62,18 +62,23 @@ class ProfileScreen extends StatelessWidget {
             children: [
               const ProfileHeader(isEditing: false),
               const SizedBox(height: 20),
-              _buildProfileItem('自己紹介', userProfileProvider.bio, const Color(0xFFF06292)), // ピンク色
-              _buildProfileItem('カラオケスキル', userProfileProvider.karaokeSkillLevel, const Color(0xFFF06292)), 
-              _buildProfileItem('カラオケの頻度', userProfileProvider.karaokeFrequency, const Color(0xFFF06292)), 
-              _buildProfileItem('カラオケの目的', userProfileProvider.karaokePurpose, const Color(0xFFF06292)), 
-              _buildProfileItem('DAM機種', userProfileProvider.selectedDamMachine, const Color(0xFF4DD0E1)), // ターコイズ色
-              _buildProfileItem('JOYSOUND機種', userProfileProvider.selectedJoySoundMachine, const Color(0xFFF06292)), 
-              _buildProfileItem('好きなジャンル', userProfileProvider.favoriteGenres.join(', '), const Color(0xFF4DD0E1)), 
-              _buildProfileItem('好きな曲', userProfileProvider.favoriteSongs.join(', '), const Color(0xFFF06292)), 
+              _buildProfileItem(
+                '自己紹介',
+                userProfileProvider.bio,
+                const Color(0xFFF06292),
+                isCentered: true,
+              ),
+              _buildProfileItem('カラオケスキル', userProfileProvider.karaokeSkillLevel, const Color(0xFFF06292)),
+              _buildProfileItem('カラオケの頻度', userProfileProvider.karaokeFrequency, const Color(0xFFF06292)),
+              _buildProfileItem('カラオケの目的', userProfileProvider.karaokePurpose, const Color(0xFFF06292)),
+              _buildProfileItem('DAM機種', userProfileProvider.selectedDamMachine, const Color(0xFF4DD0E1)),
+              _buildProfileItem('JOYSOUND機種', userProfileProvider.selectedJoySoundMachine, const Color(0xFFF06292)),
+              _buildProfileItem('好きなジャンル', userProfileProvider.favoriteGenres.join(', '), const Color(0xFF4DD0E1)),
+              _buildProfileItem('好きな曲', userProfileProvider.favoriteSongs.join(', '), const Color(0xFFF06292)),
 
               const SizedBox(height: 20),
               const Divider(
-                color: Colors.black38, 
+                color: Colors.black38,
                 thickness: 1.0,
               ),
               const SizedBox(height: 10),
@@ -85,20 +90,34 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildProfileItem(String label, String value, Color color) {
+  Widget _buildProfileItem(String label, String value, Color color, {bool isCentered = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Column(
+        crossAxisAlignment: isCentered ? CrossAxisAlignment.center : CrossAxisAlignment.start,
         children: [
           Text(
-            '$label: ',
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFFFF7043)), // 明るいオレンジ
+            '$label:',
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFFFF7043), // 明るいオレンジ
+            ),
+            textAlign: TextAlign.center,
           ),
-          Expanded(
+          const SizedBox(height: 5),
+          Container(
+            width: isCentered ? 250 : double.infinity, // セレクションの自己紹介と同じサイズ
+            padding: const EdgeInsets.all(8.0),
+            decoration: BoxDecoration(
+              color: Colors.black12, // 枠の黒塗り
+              borderRadius: BorderRadius.circular(8),
+            ),
             child: Text(
               value.isNotEmpty ? value : '未設定',
               style: TextStyle(fontSize: 16, color: color),
+              textAlign: isCentered ? TextAlign.center : TextAlign.left,
+              maxLines: null,
             ),
           ),
         ],
@@ -109,18 +128,18 @@ class ProfileScreen extends StatelessWidget {
   Widget _buildPhotoGridPlaceholder() {
     return GridView.builder(
       shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(), 
+      physics: const NeverScrollableScrollPhysics(),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3, 
-        crossAxisSpacing: 8.0, 
-        mainAxisSpacing: 8.0, 
-        childAspectRatio: 1.0, 
+        crossAxisCount: 3,
+        crossAxisSpacing: 8.0,
+        mainAxisSpacing: 8.0,
+        childAspectRatio: 1.0,
       ),
-      itemCount: 9, 
+      itemCount: 9,
       itemBuilder: (context, index) {
         return Container(
-          color: Colors.grey[300], 
-          child: const Icon(Icons.photo, color: Colors.grey), 
+          color: Colors.grey[300],
+          child: const Icon(Icons.photo, color: Colors.grey),
         );
       },
     );
