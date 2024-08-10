@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/user_profile_provider.dart';
-import 'constants.dart'; // 定数をインポート
+import 'constants.dart';
+import 'selection_logic.dart'; // 新しく作成したファイルをインポート
 
 class GenreSelection extends StatelessWidget {
   final bool isEditing;
@@ -13,8 +14,7 @@ class GenreSelection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final userProfileProvider = Provider.of<UserProfileProvider>(context);
-    final selectedGenres = userProfileProvider.favoriteGenres;
+    final selectedGenres = context.watch<UserProfileProvider>().favoriteGenres;
 
     return DefaultTabController(
       length: Constants.genres.length,
@@ -36,10 +36,16 @@ class GenreSelection extends StatelessWidget {
             }).toList(),
           ),
           SizedBox(
-            height: 200, // タブの下に表示する内容の高さを指定
+            height: 200,
             child: TabBarView(
               children: Constants.genres.map((genre) {
-                return GenreContent(genre: genre, isEditing: isEditing);
+                return GenreContent(
+                  genre: genre,
+                  isEditing: isEditing,
+                  onGenreSelected: () {
+                    SelectionLogic(context).toggleGenre(genre);
+                  },
+                );
               }).toList(),
             ),
           ),
@@ -52,24 +58,21 @@ class GenreSelection extends StatelessWidget {
 class GenreContent extends StatelessWidget {
   final String genre;
   final bool isEditing;
+  final VoidCallback onGenreSelected;
 
   const GenreContent({
     super.key,
     required this.genre,
     required this.isEditing,
+    required this.onGenreSelected,
   });
 
   @override
   Widget build(BuildContext context) {
-    final userProfileProvider = Provider.of<UserProfileProvider>(context);
-    final isSelected = userProfileProvider.favoriteGenres.contains(genre);
+    final isSelected = context.watch<UserProfileProvider>().favoriteGenres.contains(genre);
 
     return GestureDetector(
-      onTap: isEditing
-          ? () {
-              userProfileProvider.toggleGenre(genre);
-            }
-          : null,
+      onTap: isEditing ? onGenreSelected : null,
       child: Container(
         color: isSelected ? Colors.blueAccent : Colors.grey[300],
         child: Center(

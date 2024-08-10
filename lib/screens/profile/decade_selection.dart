@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/user_profile_provider.dart';
+import 'selection_logic.dart'; // 新しく作成したファイルをインポート
 
 class DecadeSelection extends StatefulWidget {
   final bool isVisible;
@@ -25,17 +26,16 @@ class DecadeSelectionState extends State<DecadeSelection> {
     setState(() {
       _isSaving = true;
     });
-    widget.onSave(selectedDecadesRanges);
+    SelectionLogic(context).saveDecades(selectedDecadesRanges);
     setState(() {
       _isSaving = false;
     });
-    widget.onToggleVisibility(); 
+    widget.onToggleVisibility();
   }
 
   @override
   Widget build(BuildContext context) {
-    final userProfileProvider = context.watch<UserProfileProvider>();
-    final List<RangeValues> selectedDecadesRanges = userProfileProvider.selectedDecadesRanges;
+    final List<RangeValues> selectedDecadesRanges = context.watch<UserProfileProvider>().selectedDecadesRanges;
 
     return Column(
       children: [
@@ -67,7 +67,7 @@ class DecadeSelectionState extends State<DecadeSelection> {
                               '${range.end.round()}年',
                             ),
                             onChanged: (values) {
-                              userProfileProvider.updateDecadeRange(index, values);
+                              SelectionLogic(context).updateDecadeRange(index, values);
                             },
                           ),
                           Text(
@@ -81,7 +81,7 @@ class DecadeSelectionState extends State<DecadeSelection> {
                     IconButton(
                       icon: const Icon(Icons.delete),
                       onPressed: () {
-                        userProfileProvider.removeDecadeRange(index);
+                        SelectionLogic(context).removeDecadeRange(index);
                       },
                     ),
                   ],
@@ -89,7 +89,7 @@ class DecadeSelectionState extends State<DecadeSelection> {
               }),
               ElevatedButton(
                 onPressed: () {
-                  userProfileProvider.addDecadeRange(const RangeValues(1940, 2024));
+                  SelectionLogic(context).addDecadeRange();
                 },
                 child: const Text('好きな年代を追加する'),
               ),

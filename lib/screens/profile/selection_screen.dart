@@ -1,76 +1,67 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../providers/user_profile_provider.dart';
+import 'genre_selection.dart';
+import 'decade_selection.dart';
+import 'live_song.dart';
+import 'machine.dart';
 
 class SelectionScreen extends StatelessWidget {
-  final String title;
-  final String initialValue;
-  final List<String>? items;
-  final ValueChanged<String> onSave;
+  final bool isEditing;
 
-  const SelectionScreen({
-    super.key,
-    required this.title,
-    required this.initialValue,
-    this.items,
-    required this.onSave,
-  });
+  const SelectionScreen({super.key, required this.isEditing});
 
   @override
   Widget build(BuildContext context) {
-    String selectedValue = initialValue; // ここで初期値がnullの場合に空文字に設定
-    final TextEditingController controller =
-        TextEditingController(text: selectedValue);
+    final userProfileProvider = Provider.of<UserProfileProvider>(context);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(title),
-        backgroundColor: Colors.black87,
+        title: const Text('プロフィール設定'),
+        backgroundColor: Colors.blue[900],
       ),
-      backgroundColor: Colors.grey[900],
+      backgroundColor: Colors.white,
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: items == null || items!.isEmpty
-            ? TextField(
-                controller: controller,
-                style: const TextStyle(color: Colors.white),
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  filled: true,
-                  fillColor: Colors.grey,
-                  hintText: '入力してください',
-                  hintStyle: TextStyle(color: Colors.white54),
-                ),
-              )
-            : DropdownButtonFormField<String>(
-                value: selectedValue.isNotEmpty ? selectedValue : items!.first,
-                items: items!.map((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value, style: const TextStyle(color: Colors.white)),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  selectedValue = value!;
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              GenreSelection(isEditing: isEditing),
+              const SizedBox(height: 20),
+              DecadeSelection(
+                isVisible: true,
+                onToggleVisibility: () {},
+                onSave: (selectedDecadesRanges) {
+                  userProfileProvider.setSelectedDecadesRanges(selectedDecadesRanges);
                 },
-                style: const TextStyle(color: Colors.white),
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  filled: true,
-                  fillColor: Colors.grey,
-                ),
-                dropdownColor: Colors.grey[850],
               ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          if (items == null || items!.isEmpty) {
-            onSave(controller.text);
-          } else {
-            onSave(selectedValue);
-          }
-          Navigator.of(context).pop();
-        },
-        backgroundColor: Colors.orange,
-        child: const Icon(Icons.save),
+              const SizedBox(height: 20),
+              FavoriteSongInput(
+                isVisible: true,
+                onToggleVisibility: () {},
+                onSave: () {
+                  // 必要に応じて追加の保存処理を実装
+                },
+              ),
+              const SizedBox(height: 20),
+              MachineSelection(isEditing: isEditing),
+              const SizedBox(height: 20),
+              Center(
+                child: ElevatedButton(
+                  onPressed: () {
+                    userProfileProvider.setSaved(true);
+                    Navigator.of(context).pop(); // 編集を終了して戻る
+                  },
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.white, backgroundColor: Colors.red[800],
+                  ),
+                  child: const Text('保存'),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

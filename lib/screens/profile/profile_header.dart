@@ -12,6 +12,15 @@ class ProfileHeader extends StatelessWidget {
     required this.isEditing,
   });
 
+  Future<void> _changeProfileImage(BuildContext context, UserProfileProvider userProfileProvider) async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+
+    if (image != null) {
+      userProfileProvider.setProfileImagePath(image.path);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final userProfileProvider = Provider.of<UserProfileProvider>(context);
@@ -21,10 +30,13 @@ class ProfileHeader extends StatelessWidget {
         GestureDetector(
           onTap: isEditing ? () => _changeProfileImage(context, userProfileProvider) : null,
           child: CircleAvatar(
-            radius: 40,
+            radius: 50,
             backgroundImage: userProfileProvider.profileImagePath.isNotEmpty
                 ? FileImage(File(userProfileProvider.profileImagePath))
                 : const AssetImage('assets/images/profile_picture.png') as ImageProvider,
+            child: userProfileProvider.profileImagePath.isEmpty
+                ? const Icon(Icons.camera_alt, size: 50)
+                : null,
           ),
         ),
         const SizedBox(width: 20),
@@ -42,14 +54,5 @@ class ProfileHeader extends StatelessWidget {
         ),
       ],
     );
-  }
-
-  Future<void> _changeProfileImage(BuildContext context, UserProfileProvider userProfileProvider) async {
-    final ImagePicker picker = ImagePicker();
-    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
-
-    if (image != null) {
-      userProfileProvider.setProfileImagePath(image.path);  // ここを修正
-    }
   }
 }

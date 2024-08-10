@@ -1,5 +1,12 @@
 class Constants {
   // カラオケスキルレベルの選択肢
+  // プロフィール関連のラベル
+  static const String bioLabel = '自己紹介';
+  static const String karaokeSkillLabel = 'カラオケスキル';
+  static const String karaokeFrequencyLabel = 'カラオケの頻度';
+  static const String karaokePurposeLabel = 'カラオケの目的';
+
+  // カラオケスキルレベルの選択肢
   static const List<String> karaokeSkillLevels = ['初心者', '中級者', '上級者'];
 
   // カラオケの頻度の選択肢
@@ -8,7 +15,6 @@ class Constants {
   // カラオケの目的の選択肢
   static const List<String> karaokePurposes = ['楽しむため', '練習のため', '友達と'];
 
-  // ジャンルの選択肢
   static const List<String> genres = [
     'ポップ',
     'ロック',

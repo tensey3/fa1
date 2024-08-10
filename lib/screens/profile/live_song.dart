@@ -1,6 +1,7 @@
+import 'package:fa1/providers/user_profile_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../providers/user_profile_provider.dart';
+import 'selection_logic.dart';
 
 class FavoriteSongInput extends StatefulWidget {
   final bool isVisible;
@@ -25,10 +26,8 @@ class FavoriteSongInputState extends State<FavoriteSongInput> {
   @override
   void initState() {
     super.initState();
-    final userProfileProvider = Provider.of<UserProfileProvider>(context, listen: false);
-    _controllers.addAll(userProfileProvider.favoriteSongs
-        .map((song) => TextEditingController(text: song))
-        .toList());
+    final favoriteSongs = context.read<UserProfileProvider>().favoriteSongs;
+    _controllers.addAll(favoriteSongs.map((song) => TextEditingController(text: song)).toList());
   }
 
   @override
@@ -49,9 +48,8 @@ class FavoriteSongInputState extends State<FavoriteSongInput> {
     setState(() {
       _isSaving = true;
     });
-    final userProfileProvider = Provider.of<UserProfileProvider>(context, listen: false);
     List<String> favoriteSongs = _controllers.map((controller) => controller.text).toList();
-    userProfileProvider.setFavoriteSongs(favoriteSongs);
+    SelectionLogic(context).saveFavoriteSongs(favoriteSongs);
     setState(() {
       _isSaving = false;
       widget.onSave(); // 保存後にセクションを閉じる

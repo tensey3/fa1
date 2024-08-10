@@ -1,12 +1,16 @@
+// ignore: duplicate_ignore
+// ignore: file_names
+// ignore_for_file: file_names
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/user_profile_provider.dart';
 import 'constants.dart';
 
-class ProfileDetails extends StatelessWidget {
+class ProfileDropdown extends StatelessWidget {
   final bool isEditing;
 
-  const ProfileDetails({super.key, required this.isEditing});
+  const ProfileDropdown({super.key, required this.isEditing});
 
   @override
   Widget build(BuildContext context) {
@@ -26,55 +30,58 @@ class ProfileDetails extends StatelessWidget {
                 style: const TextStyle(fontSize: 16),
               ),
         const SizedBox(height: 10),
-        _buildEditableDropdown(
+        _buildDropdownField(
           context: context,
           label: 'カラオケスキル',
           value: userProfileProvider.karaokeSkillLevel,
-          items: Constants.karaokeSkillLevels,
+          options: Constants.karaokeSkillLevels,
           onChanged: (value) => userProfileProvider.setKaraokeSkillLevel(value!),
         ),
         const SizedBox(height: 10),
-        _buildEditableDropdown(
+        _buildDropdownField(
           context: context,
           label: 'カラオケの頻度',
           value: userProfileProvider.karaokeFrequency,
-          items: Constants.karaokeFrequencies,
+          options: Constants.karaokeFrequencies,
           onChanged: (value) => userProfileProvider.setKaraokeFrequency(value!),
         ),
         const SizedBox(height: 10),
-        _buildEditableDropdown(
+        _buildDropdownField(
           context: context,
           label: 'カラオケの目的',
           value: userProfileProvider.karaokePurpose,
-          items: Constants.karaokePurposes,
+          options: Constants.karaokePurposes,
           onChanged: (value) => userProfileProvider.setKaraokePurpose(value!),
         ),
       ],
     );
   }
 
-  Widget _buildEditableDropdown({
+  Widget _buildDropdownField({
     required BuildContext context,
     required String label,
     required String value,
-    required List<String> items,
+    required List<String> options,
     required ValueChanged<String?> onChanged,
   }) {
-    return isEditing
-        ? DropdownButtonFormField<String>(
-            decoration: InputDecoration(labelText: label),
-            value: value,
-            items: items.map((item) {
-              return DropdownMenuItem<String>(
-                value: item,
-                child: Text(item),
-              );
-            }).toList(),
-            onChanged: onChanged,
-          )
-        : Text(
-            '$label: $value',
-            style: const TextStyle(fontSize: 16),
-          );
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        DropdownButtonFormField<String>(
+          value: value,
+          decoration: const InputDecoration(
+            border: OutlineInputBorder(),
+          ),
+          items: options.map((option) {
+            return DropdownMenuItem(
+              value: option,
+              child: Text(option),
+            );
+          }).toList(),
+          onChanged: onChanged,
+        ),
+      ],
+    );
   }
 }
