@@ -184,19 +184,19 @@ class SelectionScreenState extends State<SelectionScreen> {
           '自己紹介',
           style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.blue[900]),
         ),
-        const SizedBox(height: 10),
         TextField(
           controller: _bioController,
           onChanged: (value) {
             // ここでリスナーに通知する場合、必要に応じて変更可能
           },
-          maxLines: 5, // フィールドの高さを増やす
           decoration: const InputDecoration(
             border: OutlineInputBorder(),
             filled: true,
             fillColor: Colors.white,
             hintText: '自己紹介を入力してください',
           ),
+          maxLength: 300, // 文字数制限を300に設定
+          maxLines: null, // 自動で下に拡張されるように設定
         ),
       ],
     );
