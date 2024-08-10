@@ -119,7 +119,9 @@ class SelectionScreenState extends State<SelectionScreen> {
                     });
                   },
                   onSave: () {
-                    // 必要に応じて追加の保存処理を実装
+                    setState(() {
+                      _isFavoriteSongVisible = false;
+                    });
                   },
                 ),
               const SizedBox(height: 20),
