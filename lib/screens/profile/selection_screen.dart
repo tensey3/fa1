@@ -18,24 +18,31 @@ class SelectionScreen extends StatefulWidget {
 }
 
 class _SelectionScreenState extends State<SelectionScreen> {
-  late TextEditingController _bioController;
+  TextEditingController? _bioController;
+  TextEditingController? _userNameController;
 
   @override
   void initState() {
     super.initState();
     final userProfileProvider = Provider.of<UserProfileProvider>(context, listen: false);
     _bioController = TextEditingController(text: userProfileProvider.bio);
+    _userNameController = TextEditingController(text: userProfileProvider.userName);
   }
 
   @override
   void dispose() {
-    _bioController.dispose();
+    _bioController?.dispose();
+    _userNameController?.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final userProfileProvider = Provider.of<UserProfileProvider>(context);
+
+    // 初期化が必要な場合に備えて、nullチェックを追加
+    _bioController ??= TextEditingController(text: userProfileProvider.bio);
+    _userNameController ??= TextEditingController(text: userProfileProvider.userName);
 
     return Scaffold(
       appBar: AppBar(
@@ -49,6 +56,8 @@ class _SelectionScreenState extends State<SelectionScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              _buildUserNameField(),
+              const SizedBox(height: 20),
               _buildBioField(),
               const SizedBox(height: 20),
               _buildDropdown(
@@ -95,9 +104,11 @@ class _SelectionScreenState extends State<SelectionScreen> {
               Center(
                 child: ElevatedButton(
                   onPressed: () {
-                    userProfileProvider.setBio(_bioController.text); // Bioの保存
+                    // ユーザー名と自己紹介の保存
+                    userProfileProvider.setUserName(_userNameController!.text);
+                    userProfileProvider.setBio(_bioController!.text);
                     userProfileProvider.setSaved(true);
-                    Navigator.of(context).pop();
+                    Navigator.of(context).pop(); // 編集を終了して戻る
                   },
                   style: ElevatedButton.styleFrom(
                     foregroundColor: Colors.white, backgroundColor: Colors.red[800],
@@ -109,6 +120,27 @@ class _SelectionScreenState extends State<SelectionScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildUserNameField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'ユーザー名',
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.blue[900]),
+        ),
+        TextField(
+          controller: _userNameController,
+          decoration: const InputDecoration(
+            border: OutlineInputBorder(),
+            filled: true,
+            fillColor: Colors.white,
+            hintText: 'ユーザー名を入力してください',
+          ),
+        ),
+      ],
     );
   }
 
