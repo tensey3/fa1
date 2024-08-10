@@ -13,13 +13,16 @@ class SelectionScreen extends StatefulWidget {
   const SelectionScreen({super.key, required this.isEditing});
 
   @override
-  // ignore: library_private_types_in_public_api
-  _SelectionScreenState createState() => _SelectionScreenState();
+  SelectionScreenState createState() => SelectionScreenState();
 }
 
-class _SelectionScreenState extends State<SelectionScreen> {
+class SelectionScreenState extends State<SelectionScreen> {
   TextEditingController? _bioController;
   TextEditingController? _userNameController;
+  bool _isGenreVisible = true;
+  bool _isDecadeVisible = false;
+  bool _isFavoriteSongVisible = false;
+  bool _isMachineVisible = false;
 
   @override
   void initState() {
@@ -40,10 +43,6 @@ class _SelectionScreenState extends State<SelectionScreen> {
   Widget build(BuildContext context) {
     final userProfileProvider = Provider.of<UserProfileProvider>(context);
 
-    // 初期化が必要な場合に備えて、nullチェックを追加
-    _bioController ??= TextEditingController(text: userProfileProvider.bio);
-    _userNameController ??= TextEditingController(text: userProfileProvider.userName);
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('プロフィール設定'),
@@ -61,45 +60,75 @@ class _SelectionScreenState extends State<SelectionScreen> {
               _buildBioField(),
               const SizedBox(height: 20),
               _buildDropdown(
-                label: 'カラオケスキル',
+                label: Constants.karaokeSkillLabel,
                 value: userProfileProvider.karaokeSkillLevel,
                 items: Constants.karaokeSkillLevels,
                 onChanged: (value) => userProfileProvider.setKaraokeSkillLevel(value!),
               ),
               const SizedBox(height: 20),
               _buildDropdown(
-                label: 'カラオケの頻度',
+                label: Constants.karaokeFrequencyLabel,
                 value: userProfileProvider.karaokeFrequency,
                 items: Constants.karaokeFrequencies,
                 onChanged: (value) => userProfileProvider.setKaraokeFrequency(value!),
               ),
               const SizedBox(height: 20),
               _buildDropdown(
-                label: 'カラオケの目的',
+                label: Constants.karaokePurposeLabel,
                 value: userProfileProvider.karaokePurpose,
                 items: Constants.karaokePurposes,
                 onChanged: (value) => userProfileProvider.setKaraokePurpose(value!),
               ),
               const SizedBox(height: 20),
-              GenreSelection(isEditing: widget.isEditing),
+              _buildSectionToggle('ジャンル', _isGenreVisible, () {
+                setState(() {
+                  _isGenreVisible = !_isGenreVisible;
+                });
+              }),
+              if (_isGenreVisible) GenreSelection(isEditing: widget.isEditing),
               const SizedBox(height: 20),
-              DecadeSelection(
-                isVisible: true,
-                onToggleVisibility: () {},
-                onSave: (selectedDecadesRanges) {
-                  userProfileProvider.setSelectedDecadesRanges(selectedDecadesRanges);
-                },
-              ),
+              _buildSectionToggle('好きな年代', _isDecadeVisible, () {
+                setState(() {
+                  _isDecadeVisible = !_isDecadeVisible;
+                });
+              }),
+              if (_isDecadeVisible)
+                DecadeSelection(
+                  isVisible: _isDecadeVisible,
+                  onToggleVisibility: () {
+                    setState(() {
+                      _isDecadeVisible = !_isDecadeVisible;
+                    });
+                  },
+                  onSave: (selectedDecadesRanges) {
+                    userProfileProvider.setSelectedDecadesRanges(selectedDecadesRanges);
+                  },
+                ),
               const SizedBox(height: 20),
-              FavoriteSongInput(
-                isVisible: true,
-                onToggleVisibility: () {},
-                onSave: () {
-                  // 必要に応じて追加の保存処理を実装
-                },
-              ),
+              _buildSectionToggle('好きな曲', _isFavoriteSongVisible, () {
+                setState(() {
+                  _isFavoriteSongVisible = !_isFavoriteSongVisible;
+                });
+              }),
+              if (_isFavoriteSongVisible)
+                FavoriteSongInput(
+                  isVisible: _isFavoriteSongVisible,
+                  onToggleVisibility: () {
+                    setState(() {
+                      _isFavoriteSongVisible = !_isFavoriteSongVisible;
+                    });
+                  },
+                  onSave: () {
+                    // 必要に応じて追加の保存処理を実装
+                  },
+                ),
               const SizedBox(height: 20),
-              MachineSelection(isEditing: widget.isEditing),
+              _buildSectionToggle('機種', _isMachineVisible, () {
+                setState(() {
+                  _isMachineVisible = !_isMachineVisible;
+                });
+              }),
+              if (_isMachineVisible) MachineSelection(isEditing: widget.isEditing),
               const SizedBox(height: 20),
               Center(
                 child: ElevatedButton(
@@ -111,7 +140,8 @@ class _SelectionScreenState extends State<SelectionScreen> {
                     Navigator.of(context).pop(); // 編集を終了して戻る
                   },
                   style: ElevatedButton.styleFrom(
-                    foregroundColor: Colors.white, backgroundColor: Colors.red[800],
+                    foregroundColor: Colors.white,
+                    backgroundColor: Colors.red[800],
                   ),
                   child: const Text('保存'),
                 ),
@@ -197,6 +227,22 @@ class _SelectionScreenState extends State<SelectionScreen> {
           onChanged: onChanged,
         ),
       ],
+    );
+  }
+
+  Widget _buildSectionToggle(String label, bool isVisible, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.blue[900]),
+          ),
+          Icon(isVisible ? Icons.expand_less : Icons.expand_more),
+        ],
+      ),
     );
   }
 }
