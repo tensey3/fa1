@@ -46,9 +46,9 @@ class SelectionScreenState extends State<SelectionScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('プロフィール設定'),
-        backgroundColor: Colors.blue[900],
+        backgroundColor: const Color(0xFF40E0D0), // Turquoise (変更)
       ),
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFF2C2C54), // Dark Navy
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
@@ -143,7 +143,7 @@ class SelectionScreenState extends State<SelectionScreen> {
                   },
                   style: ElevatedButton.styleFrom(
                     foregroundColor: Colors.white,
-                    backgroundColor: Colors.red[800],
+                    backgroundColor: const Color(0xFFFF4500), // Vivid Red
                   ),
                   child: const Text('保存'),
                 ),
@@ -159,18 +159,20 @@ class SelectionScreenState extends State<SelectionScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
+        const Text(
           'ユーザー名',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.blue[900]),
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF7DF9FF)), // Electric Blue
         ),
         TextField(
           controller: _userNameController,
           decoration: const InputDecoration(
             border: OutlineInputBorder(),
             filled: true,
-            fillColor: Colors.white,
+            fillColor: Color(0xFF2C2C54), // Dark Navy
             hintText: 'ユーザー名を入力してください',
+            hintStyle: TextStyle(color: Color(0xFFD1D1D1)), // Light Silver
           ),
+          style: const TextStyle(color: Colors.white), // White
         ),
       ],
     );
@@ -180,9 +182,9 @@ class SelectionScreenState extends State<SelectionScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
+        const Text(
           '自己紹介',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.blue[900]),
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF7DF9FF)), // Electric Blue
         ),
         TextField(
           controller: _bioController,
@@ -192,9 +194,11 @@ class SelectionScreenState extends State<SelectionScreen> {
           decoration: const InputDecoration(
             border: OutlineInputBorder(),
             filled: true,
-            fillColor: Colors.white,
+            fillColor: Color(0xFF2C2C54), // Dark Navy
             hintText: '自己紹介を入力してください',
+            hintStyle: TextStyle(color: Color(0xFFD1D1D1)), // Light Silver
           ),
+          style: const TextStyle(color: Colors.white), // White
         ),
       ],
     );
@@ -211,19 +215,19 @@ class SelectionScreenState extends State<SelectionScreen> {
       children: [
         Text(
           label,
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.blue[900]),
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF7DF9FF)), // Electric Blue
         ),
         DropdownButtonFormField<String>(
           value: value,
           decoration: const InputDecoration(
             border: OutlineInputBorder(),
             filled: true,
-            fillColor: Colors.white,
+            fillColor: Color(0xFF2C2C54), // Dark Navy
           ),
           items: items.map((item) {
             return DropdownMenuItem(
               value: item,
-              child: Text(item),
+              child: Text(item, style: const TextStyle(color: Colors.white)), // White
             );
           }).toList(),
           onChanged: onChanged,
@@ -240,9 +244,9 @@ class SelectionScreenState extends State<SelectionScreen> {
         children: [
           Text(
             label,
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.blue[900]),
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF7DF9FF)), // Electric Blue
           ),
-          Icon(isVisible ? Icons.expand_less : Icons.expand_more),
+          Icon(isVisible ? Icons.expand_less : Icons.expand_more, color: Colors.white), // White
         ],
       ),
     );
