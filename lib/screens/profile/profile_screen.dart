@@ -103,7 +103,6 @@ class ProfileScreen extends StatelessWidget {
               fontWeight: FontWeight.bold,
               color: Color(0xFFFF7043), // 明るいオレンジ
             ),
-            textAlign: TextAlign.center,
           ),
           const SizedBox(height: 5),
           Container(
