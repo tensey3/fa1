@@ -104,8 +104,9 @@ class ProfileHeader extends ConsumerWidget {
       radius: 50,
       backgroundImage: imagePath.isNotEmpty
           ? FileImage(File(imagePath)) as ImageProvider
-          : const AssetImage('assets/default_profile.png'),
+          : const AssetImage('/Users/kikuchitensei/fa1/assets/images/null_icon.png'),
       backgroundColor: Colors.grey[200],
     );
   }
+
 }
