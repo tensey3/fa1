@@ -44,7 +44,7 @@ class EventScreenState extends ConsumerState<EventScreen> {
   Widget _buildCalendar(BuildContext context, Map<DateTime, List<Event>> events, DateTime selectedDay, DateTime focusedDay) {
     return TableCalendar(
       locale: 'ja_JP',
-      firstDay: DateTime.utc(2024, 1, 1),
+      firstDay: DateTime.utc(2020, 1, 1),
       lastDay: DateTime.utc(2030, 12, 31),
       focusedDay: focusedDay,
       selectedDayPredicate: (day) {
@@ -54,8 +54,9 @@ class EventScreenState extends ConsumerState<EventScreen> {
         return events[day] ?? [];
       },
       onDaySelected: (selectedDay, focusedDay) {
-        logic.onDaySelected(selectedDay, focusedDay);
-        setState(() {});  // 状態を更新するために必要
+        setState(() {
+          logic.onDaySelected(selectedDay, focusedDay);
+        });
       },
       calendarStyle: const CalendarStyle(
         todayDecoration: BoxDecoration(
@@ -70,7 +71,7 @@ class EventScreenState extends ConsumerState<EventScreen> {
           color: Colors.black,
           shape: BoxShape.circle,
         ),
-        markersMaxCount: 1,  // 1日あたり最大1つの点を表示
+        markersMaxCount: 1,
         outsideDaysVisible: false,
       ),
       headerStyle: const HeaderStyle(

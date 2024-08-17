@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'create_post_logic.dart';
+import 'create_post_logic.dart' as logic;
+import 'tournament_details_screen.dart';
 
 class CreatePostScreen extends StatelessWidget {
-  final CreatePostLogic logic = CreatePostLogic();
-
-  CreatePostScreen({super.key});
+  const CreatePostScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -29,9 +28,31 @@ class CreatePostScreen extends StatelessWidget {
             right: 16,
             bottom: 16,
             child: FloatingActionButton(
-              onPressed: () => logic.navigateToTournamentDetails(context),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const TournamentDetailsScreen(),
+                  ),
+                );
+              },
               tooltip: '大会を開く',
               child: const Icon(Icons.add),
+            ),
+          ),
+          Positioned(
+            left: 16,
+            bottom: 16,
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const logic.TournamentDetailsScreen(),
+                  ),
+                );
+              },
+              child: const Text('公式大会'),
             ),
           ),
         ],
@@ -55,14 +76,15 @@ class CreatePostScreen extends StatelessWidget {
                 ),
               ),
               onChanged: (value) {
-                logic.updateSearchQuery(value);
+                // 検索クエリを更新するロジックを呼び出す
+                logic.CreatePostLogic().updateSearchQuery(value);
               },
             ),
           ),
           IconButton(
             icon: const Icon(Icons.filter_list),
             onPressed: () {
-              logic.showFilterOptions(context);
+              logic.CreatePostLogic().showFilterOptions(context);
             },
           ),
         ],
@@ -85,7 +107,7 @@ class CreatePostScreen extends StatelessWidget {
         itemCount: tournaments.length,
         itemBuilder: (context, index) {
           final tournament = tournaments[index];
-          return _buildTournamentCard(context, tournament);  // context を渡す
+          return _buildTournamentCard(context, tournament);
         },
       ),
     );

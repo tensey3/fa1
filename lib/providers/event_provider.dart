@@ -67,12 +67,17 @@ class EventNotifier extends StateNotifier<Map<DateTime, List<Event>>> {
   // イベントを削除するメソッド
   void removeEvent(DateTime date, Event event) {
     if (state[date] != null) {
-      state = {
-        ...state,
-        date: state[date]!.where((e) => e != event).toList(),
-      };
-      if (state[date]!.isEmpty) {
-        state.remove(date);
+      final updatedEvents = state[date]!.where((e) => e != event).toList();
+      if (updatedEvents.isEmpty) {
+        // その日にイベントが残っていなければ、キーごと削除
+        final newState = Map<DateTime, List<Event>>.from(state);
+        newState.remove(date);
+        state = newState;
+      } else {
+        state = {
+          ...state,
+          date: updatedEvents,
+        };
       }
     }
   }
