@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'create_tournament_logic.dart';
+import 'create_post_logic.dart';
 
 class CreatePostScreen extends StatelessWidget {
-  final CreateTournamentLogic logic = CreateTournamentLogic();
+  final CreatePostLogic logic = CreatePostLogic();
 
   CreatePostScreen({super.key});
 
@@ -16,6 +16,7 @@ class CreatePostScreen extends StatelessWidget {
         children: [
           Column(
             children: [
+              _buildSearchBar(context),
               _buildTournamentList(context),  // 大会リストを表示するウィジェット
               Expanded(
                 child: Container(
@@ -32,6 +33,37 @@ class CreatePostScreen extends StatelessWidget {
               tooltip: '大会を開く',
               child: const Icon(Icons.add),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSearchBar(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Row(
+        children: [
+          Expanded(
+            child: TextField(
+              decoration: InputDecoration(
+                prefixIcon: const Icon(Icons.search),
+                hintText: 'どんなお相手を探しますか？',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(30.0),
+                  borderSide: const BorderSide(color: Colors.grey),
+                ),
+              ),
+              onChanged: (value) {
+                logic.updateSearchQuery(value);
+              },
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.filter_list),
+            onPressed: () {
+              logic.showFilterOptions(context);
+            },
           ),
         ],
       ),
