@@ -1,11 +1,20 @@
-import 'package:flutter/material.dart';  // 必要なインポート
-import 'package:table_calendar/table_calendar.dart';  // 必要なインポート
+import 'package:flutter/material.dart';
+import 'package:table_calendar/table_calendar.dart';
 
 class Event {
   final String title;
   final String location;
+  final DateTime startTime;  // 開始時間のフィールド
+  final DateTime endTime;    // 終了時間のフィールド
+  final int participants;    // 参加人数のフィールド
 
-  Event({required this.title, required this.location});
+  Event({
+    required this.title,
+    required this.location,
+    required this.startTime,
+    required this.endTime,
+    required this.participants,
+  });
 }
 
 class EventScreenLogic with ChangeNotifier {
@@ -31,8 +40,14 @@ class EventScreenLogic with ChangeNotifier {
     this.focusedDay = focusedDay;
   }
 
-  void addEvent(String title, String location) {
-    final event = Event(title: title, location: location);
+  void addEvent(String title, String location, DateTime startTime, DateTime endTime, int participants) {
+    final event = Event(
+      title: title,
+      location: location,
+      startTime: startTime,
+      endTime: endTime,
+      participants: participants,
+    );
     if (selectedDay != null) {
       if (events[selectedDay] != null) {
         events[selectedDay]!.add(event);

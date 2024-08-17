@@ -3,16 +3,30 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class Event {
   final String title;
   final String location;
+  final DateTime startTime;
+  final DateTime endTime;
+  final int participants;
 
-  Event({required this.title, required this.location});
+  Event({
+    required this.title,
+    required this.location,
+    required this.startTime,
+    required this.endTime,
+    required this.participants,
+  });
 }
 
-// 状態管理用のNotifier
 class EventNotifier extends StateNotifier<Map<DateTime, List<Event>>> {
   EventNotifier() : super({});
 
-  void addEvent(DateTime date, String title, String location) {
-    final event = Event(title: title, location: location);
+  void addEvent(DateTime date, String title, String location, DateTime startTime, DateTime endTime, int participants) {
+    final event = Event(
+      title: title,
+      location: location,
+      startTime: startTime,
+      endTime: endTime,
+      participants: participants,
+    );
     if (state[date] != null) {
       state = {
         ...state,
@@ -27,7 +41,6 @@ class EventNotifier extends StateNotifier<Map<DateTime, List<Event>>> {
   }
 }
 
-// プロバイダーの宣言
 final eventProvider = StateNotifierProvider<EventNotifier, Map<DateTime, List<Event>>>((ref) {
   return EventNotifier();
 });
