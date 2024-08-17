@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart'; // Riverpodをインポート
 import '../../providers/user_profile_provider.dart';
 import 'selection_logic.dart'; // 新しく作成したファイルをインポート
 
-class DecadeSelection extends StatefulWidget {
+class DecadeSelection extends ConsumerStatefulWidget { // ConsumerStatefulWidgetに変更
   final bool isVisible;
   final VoidCallback onToggleVisibility;
   final ValueChanged<List<RangeValues>> onSave;
@@ -19,14 +19,14 @@ class DecadeSelection extends StatefulWidget {
   DecadeSelectionState createState() => DecadeSelectionState();
 }
 
-class DecadeSelectionState extends State<DecadeSelection> {
+class DecadeSelectionState extends ConsumerState<DecadeSelection> { // ConsumerStateに変更
   bool _isSaving = false;
 
   void _saveDecades(List<RangeValues> selectedDecadesRanges) {
     setState(() {
       _isSaving = true;
     });
-    SelectionLogic(context).saveDecades(selectedDecadesRanges);
+    SelectionLogic(ref).saveDecades(selectedDecadesRanges); // refを使用
     setState(() {
       _isSaving = false;
     });
@@ -35,7 +35,7 @@ class DecadeSelectionState extends State<DecadeSelection> {
 
   @override
   Widget build(BuildContext context) {
-    final List<RangeValues> selectedDecadesRanges = context.watch<UserProfileProvider>().selectedDecadesRanges;
+    final List<RangeValues> selectedDecadesRanges = ref.watch(userProfileProvider).selectedDecadesRanges; // ref.watchを使用
 
     return Column(
       children: [
@@ -67,7 +67,7 @@ class DecadeSelectionState extends State<DecadeSelection> {
                               '${range.end.round()}年',
                             ),
                             onChanged: (values) {
-                              SelectionLogic(context).updateDecadeRange(index, values);
+                              SelectionLogic(ref).updateDecadeRange(index, values); // refを使用
                             },
                           ),
                           Text(
@@ -81,7 +81,7 @@ class DecadeSelectionState extends State<DecadeSelection> {
                     IconButton(
                       icon: const Icon(Icons.delete),
                       onPressed: () {
-                        SelectionLogic(context).removeDecadeRange(index);
+                        SelectionLogic(ref).removeDecadeRange(index); // refを使用
                       },
                     ),
                   ],
@@ -89,7 +89,7 @@ class DecadeSelectionState extends State<DecadeSelection> {
               }),
               ElevatedButton(
                 onPressed: () {
-                  SelectionLogic(context).addDecadeRange();
+                  SelectionLogic(ref).addDecadeRange(); // refを使用
                 },
                 child: const Text('好きな年代を追加する'),
               ),

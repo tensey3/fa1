@@ -3,18 +3,18 @@
 // ignore_for_file: file_names
 
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart'; // Riverpodをインポート
 import '../../providers/user_profile_provider.dart';
 import 'constants.dart';
 
-class ProfileDropdown extends StatelessWidget {
+class ProfileDropdown extends ConsumerWidget { // ConsumerWidgetに変更
   final bool isEditing;
 
   const ProfileDropdown({super.key, required this.isEditing});
 
   @override
-  Widget build(BuildContext context) {
-    final userProfileProvider = Provider.of<UserProfileProvider>(context);
+  Widget build(BuildContext context, WidgetRef ref) { // refを追加
+    final userProfile = ref.watch(userProfileProvider); // ref.watchを使用
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -22,36 +22,36 @@ class ProfileDropdown extends StatelessWidget {
         isEditing
             ? TextField(
                 decoration: const InputDecoration(labelText: '自己紹介'),
-                controller: TextEditingController(text: userProfileProvider.bio),
-                onChanged: (value) => userProfileProvider.setBio(value),
+                controller: TextEditingController(text: userProfile.bio),
+                onChanged: (value) => ref.read(userProfileProvider.notifier).setBio(value), // ref.readを使用
               )
             : Text(
-                '自己紹介: ${userProfileProvider.bio}',
+                '自己紹介: ${userProfile.bio}',
                 style: const TextStyle(fontSize: 16),
               ),
         const SizedBox(height: 10),
         _buildDropdownField(
           context: context,
           label: 'カラオケスキル',
-          value: userProfileProvider.karaokeSkillLevel,
+          value: userProfile.karaokeSkillLevel,
           options: Constants.karaokeSkillLevels,
-          onChanged: (value) => userProfileProvider.setKaraokeSkillLevel(value!),
+          onChanged: (value) => ref.read(userProfileProvider.notifier).setKaraokeSkillLevel(value!), // ref.readを使用
         ),
         const SizedBox(height: 10),
         _buildDropdownField(
           context: context,
           label: 'カラオケの頻度',
-          value: userProfileProvider.karaokeFrequency,
+          value: userProfile.karaokeFrequency,
           options: Constants.karaokeFrequencies,
-          onChanged: (value) => userProfileProvider.setKaraokeFrequency(value!),
+          onChanged: (value) => ref.read(userProfileProvider.notifier).setKaraokeFrequency(value!), // ref.readを使用
         ),
         const SizedBox(height: 10),
         _buildDropdownField(
           context: context,
           label: 'カラオケの目的',
-          value: userProfileProvider.karaokePurpose,
+          value: userProfile.karaokePurpose,
           options: Constants.karaokePurposes,
-          onChanged: (value) => userProfileProvider.setKaraokePurpose(value!),
+          onChanged: (value) => ref.read(userProfileProvider.notifier).setKaraokePurpose(value!), // ref.readを使用
         ),
       ],
     );

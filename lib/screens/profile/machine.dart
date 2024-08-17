@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart'; // Riverpodをインポート
 import '../../providers/user_profile_provider.dart';
 import 'constants.dart';
 import 'selection_logic.dart';
 
-class MachineSelection extends StatelessWidget {
+class MachineSelection extends ConsumerWidget { // ConsumerWidgetに変更
   final bool isEditing;
 
   const MachineSelection({super.key, required this.isEditing});
 
   @override
-  Widget build(BuildContext context) {
-    final userProfileProvider = Provider.of<UserProfileProvider>(context);
+  Widget build(BuildContext context, WidgetRef ref) { // refを追加
+    final userProfile = ref.watch(userProfileProvider); // ref.watchを使用
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -22,29 +22,27 @@ class MachineSelection extends StatelessWidget {
         ),
         const SizedBox(height: 10),
         _buildEditableDropdown(
-          context: context,
           label: 'DAM機種',
-          value: userProfileProvider.selectedDamMachine.isNotEmpty
-              ? userProfileProvider.selectedDamMachine
+          value: userProfile.selectedDamMachine.isNotEmpty
+              ? userProfile.selectedDamMachine
               : Constants.damMachines[0], // デフォルトの値を設定
           items: Constants.damMachines,
           onChanged: (value) {
             if (value != null) {
-              SelectionLogic(context).setSelectedDamMachine(value);
+              SelectionLogic(ref).setSelectedDamMachine(value); // refを使用
             }
           },
         ),
         const SizedBox(height: 10),
         _buildEditableDropdown(
-          context: context,
           label: 'JOYSOUND機種',
-          value: userProfileProvider.selectedJoySoundMachine.isNotEmpty
-              ? userProfileProvider.selectedJoySoundMachine
+          value: userProfile.selectedJoySoundMachine.isNotEmpty
+              ? userProfile.selectedJoySoundMachine
               : Constants.joySoundMachines[0], // デフォルトの値を設定
           items: Constants.joySoundMachines,
           onChanged: (value) {
             if (value != null) {
-              SelectionLogic(context).setSelectedJoySoundMachine(value);
+              SelectionLogic(ref).setSelectedJoySoundMachine(value); // refを使用
             }
           },
         ),
@@ -53,7 +51,6 @@ class MachineSelection extends StatelessWidget {
   }
 
   Widget _buildEditableDropdown({
-    required BuildContext context,
     required String label,
     required String value,
     required List<String> items,

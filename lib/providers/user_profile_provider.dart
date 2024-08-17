@@ -1,193 +1,188 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 
-class UserProfileProvider extends ChangeNotifier {
-  // プロフィール情報
-  String _userName = 'ユーザー名';
-  String _bio = '';
-  String _profileImagePath = '';
-  String _karaokeSkillLevel = '初心者';
-  String _karaokeFrequency = '週に1回';
-  String _karaokePurpose = '楽しむため';
-  String _selectedDamMachine = '';
-  String _selectedJoySoundMachine = '';
-  // その他の情報
-  List<String> _favoriteSongs = ['よく歌う曲'];
-  List<String> _favoriteGenres = ['ポップ'];
-  List<RangeValues> _selectedDecadesRanges = [const RangeValues(1940, 2024)];
-  final List<String> _selectedPhotos = [];  // 追加
+final userProfileProvider = StateNotifierProvider<UserProfileNotifier, UserProfile>((ref) {
+  return UserProfileNotifier();
+});
 
-  // プロフィールの表示設定
-  bool _isUserNameVisible = true;
-  bool _isSaved = false;
+class UserProfile {
+  final String userName;
+  final String bio;
+  final String profileImagePath;
+  final String karaokeSkillLevel;
+  final String karaokeFrequency;
+  final String karaokePurpose;
+  final String selectedDamMachine;
+  final String selectedJoySoundMachine;
+  final List<String> favoriteSongs;
+  final List<String> favoriteGenres;
+  final List<RangeValues> selectedDecadesRanges;
+  final List<String> selectedPhotos;
+  final bool isUserNameVisible;
+  final bool isSaved;
 
-  // ゲッター
-  String get userName => _userName;
-  String get bio => _bio;
-  String get profileImagePath => _profileImagePath;
-  String get karaokeSkillLevel => _karaokeSkillLevel;
-  String get karaokeFrequency => _karaokeFrequency;
-  String get karaokePurpose => _karaokePurpose;
-  String get selectedDamMachine => _selectedDamMachine;
-  String get selectedJoySoundMachine => _selectedJoySoundMachine;
-  List<String> get favoriteSongs => List.unmodifiable(_favoriteSongs); 
-  List<String> get favoriteGenres => List.unmodifiable(_favoriteGenres); 
-  List<RangeValues> get selectedDecadesRanges => List.unmodifiable(_selectedDecadesRanges); 
-  List<String> get selectedPhotos => List.unmodifiable(_selectedPhotos); // 追加
-  bool get isUserNameVisible => _isUserNameVisible;
-  bool get isSaved => _isSaved;
+  UserProfile({
+    required this.userName,
+    required this.bio,
+    required this.profileImagePath,
+    required this.karaokeSkillLevel,
+    required this.karaokeFrequency,
+    required this.karaokePurpose,
+    required this.selectedDamMachine,
+    required this.selectedJoySoundMachine,
+    required this.favoriteSongs,
+    required this.favoriteGenres,
+    required this.selectedDecadesRanges,
+    required this.selectedPhotos,
+    required this.isUserNameVisible,
+    required this.isSaved,
+  });
 
+  UserProfile copyWith({
+    String? userName,
+    String? bio,
+    String? profileImagePath,
+    String? karaokeSkillLevel,
+    String? karaokeFrequency,
+    String? karaokePurpose,
+    String? selectedDamMachine,
+    String? selectedJoySoundMachine,
+    List<String>? favoriteSongs,
+    List<String>? favoriteGenres,
+    List<RangeValues>? selectedDecadesRanges,
+    List<String>? selectedPhotos,
+    bool? isUserNameVisible,
+    bool? isSaved,
+  }) {
+    return UserProfile(
+      userName: userName ?? this.userName,
+      bio: bio ?? this.bio,
+      profileImagePath: profileImagePath ?? this.profileImagePath,
+      karaokeSkillLevel: karaokeSkillLevel ?? this.karaokeSkillLevel,
+      karaokeFrequency: karaokeFrequency ?? this.karaokeFrequency,
+      karaokePurpose: karaokePurpose ?? this.karaokePurpose,
+      selectedDamMachine: selectedDamMachine ?? this.selectedDamMachine,
+      selectedJoySoundMachine: selectedJoySoundMachine ?? this.selectedJoySoundMachine,
+      favoriteSongs: favoriteSongs ?? this.favoriteSongs,
+      favoriteGenres: favoriteGenres ?? this.favoriteGenres,
+      selectedDecadesRanges: selectedDecadesRanges ?? this.selectedDecadesRanges,
+      selectedPhotos: selectedPhotos ?? this.selectedPhotos,
+      isUserNameVisible: isUserNameVisible ?? this.isUserNameVisible,
+      isSaved: isSaved ?? this.isSaved,
+    );
+  }
+}
 
-  // メソッド
+class UserProfileNotifier extends StateNotifier<UserProfile> {
+  UserProfileNotifier()
+      : super(UserProfile(
+          userName: 'ユーザー名',
+          bio: '',
+          profileImagePath: '',
+          karaokeSkillLevel: '初心者',
+          karaokeFrequency: '週に1回',
+          karaokePurpose: '楽しむため',
+          selectedDamMachine: '',
+          selectedJoySoundMachine: '',
+          favoriteSongs: ['よく歌う曲'],
+          favoriteGenres: ['ポップ'],
+          selectedDecadesRanges: [const RangeValues(1940, 2024)],
+          selectedPhotos: [],
+          isUserNameVisible: true,
+          isSaved: false,
+        ));
+
   void setUserName(String name) {
-    if (_userName != name && name.isNotEmpty) {
-      _userName = name;
-      notifyListeners();
-    }
+    state = state.copyWith(userName: name);
   }
 
   void setBio(String bio) {
-    if (_bio != bio) {
-      _bio = bio;
-      notifyListeners();
-    }
+    state = state.copyWith(bio: bio);
   }
 
   void setProfileImagePath(String path) {
-    if (_profileImagePath != path && path.isNotEmpty) {
-      _profileImagePath = path;
-      notifyListeners();
-    }
+    state = state.copyWith(profileImagePath: path);
   }
-    // プロフィール画像を削除
+
   void removeProfileImage() {
-    _profileImagePath = ''; // 画像パスを空に設定
-    notifyListeners(); // UIに変更を通知
+    state = state.copyWith(profileImagePath: '');
   }
 
   void setKaraokeSkillLevel(String level) {
-    if (_karaokeSkillLevel != level && level.isNotEmpty) {
-      _karaokeSkillLevel = level;
-      notifyListeners();
-    }
+    state = state.copyWith(karaokeSkillLevel: level);
   }
 
   void setKaraokeFrequency(String frequency) {
-    if (_karaokeFrequency != frequency && frequency.isNotEmpty) {
-      _karaokeFrequency = frequency;
-      notifyListeners();
-    }
+    state = state.copyWith(karaokeFrequency: frequency);
   }
 
   void setKaraokePurpose(String purpose) {
-    if (_karaokePurpose != purpose && purpose.isNotEmpty) {
-      _karaokePurpose = purpose;
-      notifyListeners();
-    }
+    state = state.copyWith(karaokePurpose: purpose);
   }
 
   void setSelectedDamMachine(String machine) {
-    if (_selectedDamMachine != machine && machine.isNotEmpty) {
-      _selectedDamMachine = machine;
-      notifyListeners();
-    }
+    state = state.copyWith(selectedDamMachine: machine);
   }
 
   void setSelectedJoySoundMachine(String machine) {
-    if (_selectedJoySoundMachine != machine && machine.isNotEmpty) {
-      _selectedJoySoundMachine = machine;
-      notifyListeners();
-    }
+    state = state.copyWith(selectedJoySoundMachine: machine);
   }
 
   void setFavoriteSongs(List<String> songs) {
-    if (!_listsAreEqual(_favoriteSongs, songs)) {
-      _favoriteSongs = List.from(songs); 
-      notifyListeners();
-    }
+    state = state.copyWith(favoriteSongs: List.from(songs));
   }
 
   void addFavoriteSong(String song) {
-    if (!_favoriteSongs.contains(song)) {
-      _favoriteSongs.add(song);
-      notifyListeners();
-    }
+    final updatedSongs = List<String>.from(state.favoriteSongs)..add(song);
+    state = state.copyWith(favoriteSongs: updatedSongs);
   }
 
   void setFavoriteGenres(List<String> genres) {
-    if (!_listsAreEqual(_favoriteGenres, genres)) {
-      _favoriteGenres = List.from(genres); 
-      notifyListeners();
-    }
+    state = state.copyWith(favoriteGenres: List.from(genres));
   }
 
   void toggleGenre(String genre) {
-    if (_favoriteGenres.contains(genre)) {
-      _favoriteGenres.remove(genre);
+    final updatedGenres = List<String>.from(state.favoriteGenres);
+    if (updatedGenres.contains(genre)) {
+      updatedGenres.remove(genre);
     } else {
-      _favoriteGenres.add(genre);
+      updatedGenres.add(genre);
     }
-    notifyListeners();
+    state = state.copyWith(favoriteGenres: updatedGenres);
   }
 
   void setSelectedDecadesRanges(List<RangeValues> ranges) {
-    if (!_rangesAreEqual(_selectedDecadesRanges, ranges)) {
-      _selectedDecadesRanges = List.from(ranges); 
-      notifyListeners();
-    }
+    state = state.copyWith(selectedDecadesRanges: List.from(ranges));
   }
 
   void addDecadeRange(RangeValues range) {
-    _selectedDecadesRanges.add(range);
-    notifyListeners();
+    final updatedRanges = List<RangeValues>.from(state.selectedDecadesRanges)
+      ..add(range);
+    state = state.copyWith(selectedDecadesRanges: updatedRanges);
   }
 
   void updateDecadeRange(int index, RangeValues range) {
-    if (index >= 0 && index < _selectedDecadesRanges.length) {
-      _selectedDecadesRanges[index] = range;
-      notifyListeners();
-    }
+    final updatedRanges = List<RangeValues>.from(state.selectedDecadesRanges)
+      ..[index] = range;
+    state = state.copyWith(selectedDecadesRanges: updatedRanges);
   }
 
   void removeDecadeRange(int index) {
-    if (index >= 0 && index < _selectedDecadesRanges.length) {
-      _selectedDecadesRanges.removeAt(index);
-      notifyListeners();
-    }
+    final updatedRanges = List<RangeValues>.from(state.selectedDecadesRanges)
+      ..removeAt(index);
+    state = state.copyWith(selectedDecadesRanges: updatedRanges);
   }
 
   void toggleUserNameVisibility() {
-    _isUserNameVisible = !_isUserNameVisible;
-    notifyListeners();
+    state = state.copyWith(isUserNameVisible: !state.isUserNameVisible);
   }
 
   void setSaved(bool value) {
-    if (_isSaved != value) {
-      _isSaved = value;
-      notifyListeners();
-    }
+    state = state.copyWith(isSaved: value);
   }
 
-  void updateProfileImage(String path) {  // 追加
-    setProfileImagePath(path);
-    _selectedPhotos.add(path);
-  }
-
-  // 内部ユーティリティメソッド
-  bool _listsAreEqual(List<String> list1, List<String> list2) {
-    if (list1.length != list2.length) return false;
-    for (int i = 0; i < list1.length; i++) {
-      if (list1[i] != list2[i]) return false;
-    }
-    return true;
-  }
-
-  bool _rangesAreEqual(List<RangeValues> list1, List<RangeValues> list2) {
-    if (list1.length != list2.length) return false;
-    for (int i = 0; i < list1.length; i++) {
-      if (list1[i].start != list2[i].start || list1[i].end != list2[i].end) {
-        return false;
-      }
-    }
-    return true;
+  void updateProfileImage(String path) {
+    final updatedPhotos = List<String>.from(state.selectedPhotos)..add(path);
+    state = state.copyWith(profileImagePath: path, selectedPhotos: updatedPhotos);
   }
 }

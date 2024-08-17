@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart'; // Riverpodをインポート
 import '../../providers/user_profile_provider.dart';
 import 'constants.dart';
 import 'selection_logic.dart'; // 新しく作成したファイルをインポート
 
-class GenreSelection extends StatelessWidget {
+class GenreSelection extends ConsumerWidget { // ConsumerWidgetに変更
   final bool isEditing;
 
   const GenreSelection({
@@ -13,8 +13,8 @@ class GenreSelection extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    final selectedGenres = context.watch<UserProfileProvider>().favoriteGenres;
+  Widget build(BuildContext context, WidgetRef ref) { // refを追加
+    final selectedGenres = ref.watch(userProfileProvider).favoriteGenres; // ref.watchを使用
 
     return DefaultTabController(
       length: Constants.genres.length,
@@ -43,7 +43,7 @@ class GenreSelection extends StatelessWidget {
                   genre: genre,
                   isEditing: isEditing,
                   onGenreSelected: () {
-                    SelectionLogic(context).toggleGenre(genre);
+                    SelectionLogic(ref).toggleGenre(genre); // refを渡す
                   },
                 );
               }).toList(),
@@ -55,7 +55,7 @@ class GenreSelection extends StatelessWidget {
   }
 }
 
-class GenreContent extends StatelessWidget {
+class GenreContent extends ConsumerWidget { // ConsumerWidgetに変更
   final String genre;
   final bool isEditing;
   final VoidCallback onGenreSelected;
@@ -68,8 +68,8 @@ class GenreContent extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    final isSelected = context.watch<UserProfileProvider>().favoriteGenres.contains(genre);
+  Widget build(BuildContext context, WidgetRef ref) { // refを追加
+    final isSelected = ref.watch(userProfileProvider).favoriteGenres.contains(genre); // ref.watchを使用
 
     return GestureDetector(
       onTap: isEditing ? onGenreSelected : null,

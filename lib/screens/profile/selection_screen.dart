@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart'; // Riverpodをインポート
 import '../../providers/user_profile_provider.dart';
 import 'genre_selection.dart';
 import 'decade_selection.dart';
@@ -7,7 +7,7 @@ import 'live_song.dart';
 import 'machine.dart';
 import 'constants.dart';
 
-class SelectionScreen extends StatefulWidget {
+class SelectionScreen extends ConsumerStatefulWidget { // ConsumerStatefulWidgetに変更
   final bool isEditing;
 
   const SelectionScreen({super.key, required this.isEditing});
@@ -16,7 +16,7 @@ class SelectionScreen extends StatefulWidget {
   SelectionScreenState createState() => SelectionScreenState();
 }
 
-class SelectionScreenState extends State<SelectionScreen> {
+class SelectionScreenState extends ConsumerState<SelectionScreen> { // ConsumerStateに変更
   TextEditingController? _bioController;
   TextEditingController? _userNameController;
   bool _isGenreVisible = true;
@@ -27,9 +27,10 @@ class SelectionScreenState extends State<SelectionScreen> {
   @override
   void initState() {
     super.initState();
-    final userProfileProvider = Provider.of<UserProfileProvider>(context, listen: false);
-    _bioController = TextEditingController(text: userProfileProvider.bio);
-    _userNameController = TextEditingController(text: userProfileProvider.userName);
+    // 初期化は ref.read から行う
+    final userProfile = ref.read(userProfileProvider); // ref.readを使用して初期化
+    _bioController = TextEditingController(text: userProfile.bio);
+    _userNameController = TextEditingController(text: userProfile.userName);
   }
 
   @override
@@ -41,7 +42,7 @@ class SelectionScreenState extends State<SelectionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final userProfileProvider = Provider.of<UserProfileProvider>(context);
+    final userProfile = ref.watch(userProfileProvider); // ref.watchを使用
 
     return Scaffold(
       appBar: AppBar(
@@ -61,23 +62,23 @@ class SelectionScreenState extends State<SelectionScreen> {
               const SizedBox(height: 20),
               _buildDropdown(
                 label: Constants.karaokeSkillLabel,
-                value: userProfileProvider.karaokeSkillLevel,
+                value: userProfile.karaokeSkillLevel,
                 items: Constants.karaokeSkillLevels,
-                onChanged: (value) => userProfileProvider.setKaraokeSkillLevel(value!),
+                onChanged: (value) => ref.read(userProfileProvider.notifier).setKaraokeSkillLevel(value!), // ref.readを使用
               ),
               const SizedBox(height: 20),
               _buildDropdown(
                 label: Constants.karaokeFrequencyLabel,
-                value: userProfileProvider.karaokeFrequency,
+                value: userProfile.karaokeFrequency,
                 items: Constants.karaokeFrequencies,
-                onChanged: (value) => userProfileProvider.setKaraokeFrequency(value!),
+                onChanged: (value) => ref.read(userProfileProvider.notifier).setKaraokeFrequency(value!), // ref.readを使用
               ),
               const SizedBox(height: 20),
               _buildDropdown(
                 label: Constants.karaokePurposeLabel,
-                value: userProfileProvider.karaokePurpose,
+                value: userProfile.karaokePurpose,
                 items: Constants.karaokePurposes,
-                onChanged: (value) => userProfileProvider.setKaraokePurpose(value!),
+                onChanged: (value) => ref.read(userProfileProvider.notifier).setKaraokePurpose(value!), // ref.readを使用
               ),
               const SizedBox(height: 20),
               _buildSectionToggle('ジャンル', _isGenreVisible, () {
@@ -101,7 +102,7 @@ class SelectionScreenState extends State<SelectionScreen> {
                     });
                   },
                   onSave: (selectedDecadesRanges) {
-                    userProfileProvider.setSelectedDecadesRanges(selectedDecadesRanges);
+                    ref.read(userProfileProvider.notifier).setSelectedDecadesRanges(selectedDecadesRanges); // ref.readを使用
                   },
                 ),
               const SizedBox(height: 20),
@@ -136,9 +137,9 @@ class SelectionScreenState extends State<SelectionScreen> {
                 child: ElevatedButton(
                   onPressed: () {
                     // ユーザー名と自己紹介の保存
-                    userProfileProvider.setUserName(_userNameController!.text);
-                    userProfileProvider.setBio(_bioController!.text);
-                    userProfileProvider.setSaved(true);
+                    ref.read(userProfileProvider.notifier).setUserName(_userNameController!.text);
+                    ref.read(userProfileProvider.notifier).setBio(_bioController!.text);
+                    ref.read(userProfileProvider.notifier).setSaved(true);
                     Navigator.of(context).pop(); // 編集を終了して戻る
                   },
                   style: ElevatedButton.styleFrom(

@@ -1,10 +1,10 @@
-import 'package:fa1/providers/user_profile_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
+import '../../providers/user_profile_provider.dart'; // 正しいパスでインポート
 
-class ProfileHeader extends StatelessWidget {
+class ProfileHeader extends ConsumerWidget {
   final bool isEditing;
 
   const ProfileHeader({
@@ -16,20 +16,20 @@ class ProfileHeader extends StatelessWidget {
   final void Function(String imagePath) onImageSelected;
 
   @override
-  Widget build(BuildContext context) {
-    final provider = Provider.of<UserProfileProvider>(context);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final userProfile = ref.watch(userProfileProvider); // プロバイダーを監視
 
     return GestureDetector(
-      onTap: isEditing ? () => _showImageOptions(context, provider) : null,
+      onTap: isEditing ? () => _showImageOptions(context, ref) : null,
       child: Stack(
         children: [
-          _buildProfileImage(provider),
+          _buildProfileImage(userProfile.profileImagePath), // プロフィール画像を構築
           if (isEditing)
             Positioned(
               bottom: 0,
               right: 0,
               child: GestureDetector(
-                onTap: () => _showImageOptions(context, provider),
+                onTap: () => _showImageOptions(context, ref),
                 child: const CircleAvatar(
                   backgroundColor: Colors.orange,
                   radius: 15,
@@ -46,7 +46,9 @@ class ProfileHeader extends StatelessWidget {
     );
   }
 
-  void _showImageOptions(BuildContext context, UserProfileProvider provider) {
+  void _showImageOptions(BuildContext context, WidgetRef ref) {
+    final provider = ref.read(userProfileProvider.notifier); // 状態を取得
+
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
@@ -57,7 +59,7 @@ class ProfileHeader extends StatelessWidget {
                 leading: const Icon(Icons.photo_library),
                 title: const Text('ライブラリから選択'),
                 onTap: () {
-                  _pickImage(context, provider, ImageSource.gallery);
+                  _pickImage(context, ref, ImageSource.gallery);
                   Navigator.of(context).pop();
                 },
               ),
@@ -65,16 +67,17 @@ class ProfileHeader extends StatelessWidget {
                 leading: const Icon(Icons.camera_alt),
                 title: const Text('カメラで撮影'),
                 onTap: () {
-                  _pickImage(context, provider, ImageSource.camera);
+                  _pickImage(context, ref, ImageSource.camera);
                   Navigator.of(context).pop();
                 },
               ),
-              if (provider.profileImagePath.isNotEmpty)
+              // ignore: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
+              if (provider.state.profileImagePath.isNotEmpty)
                 ListTile(
                   leading: const Icon(Icons.delete),
                   title: const Text('画像を削除'),
                   onTap: () {
-                    provider.removeProfileImage(); // 画像を削除
+                    provider.removeProfileImage();
                     Navigator.of(context).pop();
                   },
                 ),
@@ -85,22 +88,23 @@ class ProfileHeader extends StatelessWidget {
     );
   }
 
-  Future<void> _pickImage(BuildContext context, UserProfileProvider provider, ImageSource source) async {
+  Future<void> _pickImage(BuildContext context, WidgetRef ref, ImageSource source) async {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: source);
 
     if (pickedFile != null) {
+      final provider = ref.read(userProfileProvider.notifier);
       provider.setProfileImagePath(pickedFile.path);
-      onImageSelected(pickedFile.path); // 選択された画像のパスをコールバックで渡す
+      onImageSelected(pickedFile.path);
     }
   }
 
-  Widget _buildProfileImage(UserProfileProvider provider) {
+  Widget _buildProfileImage(String imagePath) {
     return CircleAvatar(
       radius: 50,
-      backgroundImage: provider.profileImagePath.isNotEmpty
-          ? FileImage(File(provider.profileImagePath))
-          : const AssetImage('assets/default_profile.png'), // デフォルト画像
+      backgroundImage: imagePath.isNotEmpty
+          ? FileImage(File(imagePath)) as ImageProvider
+          : const AssetImage('assets/default_profile.png'),
       backgroundColor: Colors.grey[200],
     );
   }

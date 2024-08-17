@@ -1,21 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:table_calendar/table_calendar.dart';
+import '../../providers/event_provider.dart';
 
-class EventScreen extends StatefulWidget {
+class EventScreen extends ConsumerStatefulWidget {
   const EventScreen({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
-  _EventScreenState createState() => _EventScreenState();
+  EventScreenState createState() => EventScreenState();
 }
 
-class _EventScreenState extends State<EventScreen> {
-  CalendarFormat _calendarFormat = CalendarFormat.month;
+class EventScreenState extends ConsumerState<EventScreen> {
+  DateTime _selectedDay = DateTime.now();
   DateTime _focusedDay = DateTime.now();
-  DateTime? _selectedDay;
 
   @override
   Widget build(BuildContext context) {
+    final events = ref.watch(eventProvider);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('イベントカレンダー'),
@@ -25,11 +27,10 @@ class _EventScreenState extends State<EventScreen> {
         child: Column(
           children: [
             TableCalendar(
-              locale: 'ja_JP', // 日本語ロケールを設定
+              locale: 'ja_JP',
               firstDay: DateTime.utc(2020, 1, 1),
               lastDay: DateTime.utc(2030, 12, 31),
               focusedDay: _focusedDay,
-              calendarFormat: _calendarFormat,
               selectedDayPredicate: (day) {
                 return isSameDay(_selectedDay, day);
               },
@@ -38,16 +39,6 @@ class _EventScreenState extends State<EventScreen> {
                   _selectedDay = selectedDay;
                   _focusedDay = focusedDay;
                 });
-              },
-              onFormatChanged: (format) {
-                if (_calendarFormat != format) {
-                  setState(() {
-                    _calendarFormat = format;
-                  });
-                }
-              },
-              onPageChanged: (focusedDay) {
-                _focusedDay = focusedDay;
               },
               calendarStyle: const CalendarStyle(
                 todayDecoration: BoxDecoration(
@@ -65,12 +56,24 @@ class _EventScreenState extends State<EventScreen> {
               ),
             ),
             const SizedBox(height: 16.0),
-            if (_selectedDay != null)
-              Text(
-                '選択した日付: ${_selectedDay?.toLocal()}',
-                style: const TextStyle(fontSize: 18),
+            Expanded(
+              child: ListView.builder(
+                itemCount: events[_selectedDay]?.length ?? 0,
+                itemBuilder: (context, index) {
+                  final event = events[_selectedDay]![index];
+                  return ListTile(
+                    title: Text('予定: ${event.title}'),
+                    subtitle: Text('場所: ${event.location}'),
+                  );
+                },
               ),
-            // 他のイベント表示などのウィジェットをここに追加できます
+            ),
+            ElevatedButton(
+              onPressed: () {
+                ref.read(eventProvider.notifier).addEvent(_selectedDay, '新しい予定', '東京');
+              },
+              child: const Text('予定を追加'),
+            ),
           ],
         ),
       ),

@@ -1,15 +1,16 @@
+import 'dart:io';
 import 'package:fa1/screens/profile/profile_header.dart';
 import 'package:fa1/screens/profile/selection_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../../providers/user_profile_provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart'; // Riverpodをインポート
+import '../../providers/user_profile_provider.dart'; // プロバイダーのインポート
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends ConsumerWidget { // ConsumerWidgetに変更
   const ProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final userProfileProvider = Provider.of<UserProfileProvider>(context);
+  Widget build(BuildContext context, WidgetRef ref) { // refを追加
+    final userProfile = ref.watch(userProfileProvider); // プロバイダーを監視
 
     return Scaffold(
       appBar: AppBar(
@@ -63,23 +64,23 @@ class ProfileScreen extends StatelessWidget {
               ProfileHeader(
                 isEditing: true,
                 onImageSelected: (imageFile) {
-                  userProfileProvider.updateProfileImage(imageFile);
+                  ref.read(userProfileProvider.notifier).updateProfileImage(imageFile); // refを使用して状態を更新
                 },
               ),
               const SizedBox(height: 20),
               _buildProfileItem(
                 '自己紹介',
-                userProfileProvider.bio,
+                userProfile.bio, // ここでuserProfileを使用
                 const Color(0xFFF06292),
                 isCentered: true,
               ),
-              _buildProfileItem('カラオケスキル', userProfileProvider.karaokeSkillLevel, const Color(0xFFF06292)),
-              _buildProfileItem('カラオケの頻度', userProfileProvider.karaokeFrequency, const Color(0xFFF06292)),
-              _buildProfileItem('カラオケの目的', userProfileProvider.karaokePurpose, const Color(0xFFF06292)),
-              _buildProfileItem('DAM機種', userProfileProvider.selectedDamMachine, const Color(0xFF4DD0E1)),
-              _buildProfileItem('JOYSOUND機種', userProfileProvider.selectedJoySoundMachine, const Color(0xFFF06292)),
-              _buildProfileItem('好きなジャンル', userProfileProvider.favoriteGenres.join(', '), const Color(0xFF4DD0E1)),
-              _buildProfileItem('好きな曲', userProfileProvider.favoriteSongs.join(', '), const Color(0xFFF06292)),
+              _buildProfileItem('カラオケスキル', userProfile.karaokeSkillLevel, const Color(0xFFF06292)),
+              _buildProfileItem('カラオケの頻度', userProfile.karaokeFrequency, const Color(0xFFF06292)),
+              _buildProfileItem('カラオケの目的', userProfile.karaokePurpose, const Color(0xFFF06292)),
+              _buildProfileItem('DAM機種', userProfile.selectedDamMachine, const Color(0xFF4DD0E1)),
+              _buildProfileItem('JOYSOUND機種', userProfile.selectedJoySoundMachine, const Color(0xFFF06292)),
+              _buildProfileItem('好きなジャンル', userProfile.favoriteGenres.join(', '), const Color(0xFF4DD0E1)),
+              _buildProfileItem('好きな曲', userProfile.favoriteSongs.join(', '), const Color(0xFFF06292)),
 
               const SizedBox(height: 20),
               const Divider(
@@ -87,7 +88,7 @@ class ProfileScreen extends StatelessWidget {
                 thickness: 1.0,
               ),
               const SizedBox(height: 10),
-              _buildPhotoGrid(userProfileProvider.selectedPhotos),
+              _buildPhotoGrid(userProfile.selectedPhotos),
             ],
           ),
         ),
@@ -151,7 +152,7 @@ class ProfileScreen extends StatelessWidget {
           return Container(
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage(selectedPhotos[index]), // ここで選択された写真を表示
+                image: FileImage(File(selectedPhotos[index])), // ここで選択された写真を表示
                 fit: BoxFit.cover,
               ),
               borderRadius: BorderRadius.circular(8),

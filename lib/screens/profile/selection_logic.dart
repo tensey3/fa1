@@ -1,38 +1,35 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart'; // Riverpodをインポート
 import '../../providers/user_profile_provider.dart';
 
 class SelectionLogic {
-  final BuildContext context;
+  final WidgetRef ref; // BuildContextの代わりにWidgetRefを使用
 
-  SelectionLogic(this.context);
+  SelectionLogic(this.ref);
 
   // ジャンルのトグル処理
   void toggleGenre(String genre) {
-    final userProfileProvider = Provider.of<UserProfileProvider>(context, listen: false);
-    userProfileProvider.toggleGenre(genre);
+    ref.read(userProfileProvider.notifier).toggleGenre(genre); // refを使用
     _logAction('Genre toggled', genre);
   }
 
   // 年代の保存処理
   void saveDecades(List<RangeValues> selectedDecadesRanges) {
-    final userProfileProvider = Provider.of<UserProfileProvider>(context, listen: false);
-    userProfileProvider.setSelectedDecadesRanges(selectedDecadesRanges);
+    ref.read(userProfileProvider.notifier).setSelectedDecadesRanges(selectedDecadesRanges); // refを使用
     _logAction('Decades saved', selectedDecadesRanges.toString());
   }
 
   // 年代範囲の追加処理
   void addDecadeRange() {
-    final userProfileProvider = Provider.of<UserProfileProvider>(context, listen: false);
-    userProfileProvider.addDecadeRange(const RangeValues(1940, 2024));
+    ref.read(userProfileProvider.notifier).addDecadeRange(const RangeValues(1940, 2024)); // refを使用
     _logAction('Decade range added', '1940 - 2024');
   }
 
   // 年代範囲の更新処理
   void updateDecadeRange(int index, RangeValues values) {
-    final userProfileProvider = Provider.of<UserProfileProvider>(context, listen: false);
-    if (index >= 0 && index < userProfileProvider.selectedDecadesRanges.length) {
-      userProfileProvider.updateDecadeRange(index, values);
+    final userProfile = ref.read(userProfileProvider); // stateを取得
+    if (index >= 0 && index < userProfile.selectedDecadesRanges.length) {
+      ref.read(userProfileProvider.notifier).updateDecadeRange(index, values);
       _logAction('Decade range updated', '$index: ${values.start} - ${values.end}');
     } else {
       _logError('Invalid index for updating decade range', index.toString());
@@ -41,9 +38,9 @@ class SelectionLogic {
 
   // 年代範囲の削除処理
   void removeDecadeRange(int index) {
-    final userProfileProvider = Provider.of<UserProfileProvider>(context, listen: false);
-    if (index >= 0 && index < userProfileProvider.selectedDecadesRanges.length) {
-      userProfileProvider.removeDecadeRange(index);
+    final userProfile = ref.read(userProfileProvider); // stateを取得
+    if (index >= 0 && index < userProfile.selectedDecadesRanges.length) {
+      ref.read(userProfileProvider.notifier).removeDecadeRange(index);
       _logAction('Decade range removed', index.toString());
     } else {
       _logError('Invalid index for removing decade range', index.toString());
@@ -52,22 +49,19 @@ class SelectionLogic {
 
   // よく歌う曲の保存処理
   void saveFavoriteSongs(List<String> favoriteSongs) {
-    final userProfileProvider = Provider.of<UserProfileProvider>(context, listen: false);
-    userProfileProvider.setFavoriteSongs(favoriteSongs);
+    ref.read(userProfileProvider.notifier).setFavoriteSongs(favoriteSongs); // refを使用
     _logAction('Favorite songs saved', favoriteSongs.join(', '));
   }
 
   // DAM機種の選択処理
   void setSelectedDamMachine(String value) {
-    final userProfileProvider = Provider.of<UserProfileProvider>(context, listen: false);
-    userProfileProvider.setSelectedDamMachine(value);
+    ref.read(userProfileProvider.notifier).setSelectedDamMachine(value); // refを使用
     _logAction('Selected DAM machine', value);
   }
 
   // JOYSOUND機種の選択処理
   void setSelectedJoySoundMachine(String value) {
-    final userProfileProvider = Provider.of<UserProfileProvider>(context, listen: false);
-    userProfileProvider.setSelectedJoySoundMachine(value);
+    ref.read(userProfileProvider.notifier).setSelectedJoySoundMachine(value); // refを使用
     _logAction('Selected JOYSOUND machine', value);
   }
 

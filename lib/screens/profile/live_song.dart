@@ -1,9 +1,9 @@
-import 'package:fa1/providers/user_profile_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart'; // Riverpodをインポート
+import '../../providers/user_profile_provider.dart';
 import 'selection_logic.dart';
 
-class FavoriteSongInput extends StatefulWidget {
+class FavoriteSongInput extends ConsumerStatefulWidget { // ConsumerStatefulWidgetに変更
   final bool isVisible;
   final VoidCallback onToggleVisibility;
   final VoidCallback onSave;
@@ -19,14 +19,14 @@ class FavoriteSongInput extends StatefulWidget {
   FavoriteSongInputState createState() => FavoriteSongInputState();
 }
 
-class FavoriteSongInputState extends State<FavoriteSongInput> {
+class FavoriteSongInputState extends ConsumerState<FavoriteSongInput> { // ConsumerStateに変更
   final List<TextEditingController> _controllers = [];
   bool _isSaving = false;
 
   @override
   void initState() {
     super.initState();
-    final favoriteSongs = context.read<UserProfileProvider>().favoriteSongs;
+    final favoriteSongs = ref.read(userProfileProvider).favoriteSongs; // ref.readを使用
     _controllers.addAll(favoriteSongs.map((song) => TextEditingController(text: song)).toList());
   }
 
@@ -49,7 +49,7 @@ class FavoriteSongInputState extends State<FavoriteSongInput> {
       _isSaving = true;
     });
     List<String> favoriteSongs = _controllers.map((controller) => controller.text).toList();
-    SelectionLogic(context).saveFavoriteSongs(favoriteSongs);
+    SelectionLogic(ref).saveFavoriteSongs(favoriteSongs); // 直接refを使用
     setState(() {
       _isSaving = false;
       widget.onSave(); // 保存後にセクションを閉じる
