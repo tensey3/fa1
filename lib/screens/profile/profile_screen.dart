@@ -60,7 +60,12 @@ class ProfileScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const ProfileHeader(isEditing: false),
+              ProfileHeader(
+                isEditing: true,
+                onImageSelected: (imageFile) {
+                  userProfileProvider.updateProfileImage(imageFile);
+                },
+              ),
               const SizedBox(height: 20),
               _buildProfileItem(
                 '自己紹介',
@@ -82,7 +87,7 @@ class ProfileScreen extends StatelessWidget {
                 thickness: 1.0,
               ),
               const SizedBox(height: 10),
-              _buildPhotoGridPlaceholder(),
+              _buildPhotoGrid(userProfileProvider.selectedPhotos),
             ],
           ),
         ),
@@ -103,6 +108,7 @@ class ProfileScreen extends StatelessWidget {
               fontWeight: FontWeight.bold,
               color: Color(0xFFFF7043), // 明るいオレンジ
             ),
+            textAlign: TextAlign.center,
           ),
           const SizedBox(height: 5),
           Container(
@@ -124,7 +130,7 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildPhotoGridPlaceholder() {
+  Widget _buildPhotoGrid(List<String> selectedPhotos) {
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -134,12 +140,24 @@ class ProfileScreen extends StatelessWidget {
         mainAxisSpacing: 8.0,
         childAspectRatio: 1.0,
       ),
-      itemCount: 9,
+      itemCount: selectedPhotos.isEmpty ? 9 : selectedPhotos.length,
       itemBuilder: (context, index) {
-        return Container(
-          color: Colors.grey[300],
-          child: const Icon(Icons.photo, color: Colors.grey),
-        );
+        if (selectedPhotos.isEmpty) {
+          return Container(
+            color: Colors.grey[300],
+            child: const Icon(Icons.photo, color: Colors.grey),
+          );
+        } else {
+          return Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage(selectedPhotos[index]), // ここで選択された写真を表示
+                fit: BoxFit.cover,
+              ),
+              borderRadius: BorderRadius.circular(8),
+            ),
+          );
+        }
       },
     );
   }

@@ -15,6 +15,7 @@ class UserProfileProvider extends ChangeNotifier {
   List<String> _favoriteSongs = ['よく歌う曲'];
   List<String> _favoriteGenres = ['ポップ'];
   List<RangeValues> _selectedDecadesRanges = [const RangeValues(1940, 2024)];
+  final List<String> _selectedPhotos = [];  // 追加
 
   // プロフィールの表示設定
   bool _isUserNameVisible = true;
@@ -29,13 +30,14 @@ class UserProfileProvider extends ChangeNotifier {
   String get karaokePurpose => _karaokePurpose;
   String get selectedDamMachine => _selectedDamMachine;
   String get selectedJoySoundMachine => _selectedJoySoundMachine;
-  List<String> get favoriteSongs => List.unmodifiable(_favoriteSongs); // 不変リストを返す
-  List<String> get favoriteGenres => List.unmodifiable(_favoriteGenres); // 不変リストを返す
-  List<RangeValues> get selectedDecadesRanges => List.unmodifiable(_selectedDecadesRanges); // 不変リストを返す
+  List<String> get favoriteSongs => List.unmodifiable(_favoriteSongs); 
+  List<String> get favoriteGenres => List.unmodifiable(_favoriteGenres); 
+  List<RangeValues> get selectedDecadesRanges => List.unmodifiable(_selectedDecadesRanges); 
+  List<String> get selectedPhotos => List.unmodifiable(_selectedPhotos); // 追加
   bool get isUserNameVisible => _isUserNameVisible;
   bool get isSaved => _isSaved;
 
-  // セッター
+  // メソッド
   void setUserName(String name) {
     if (_userName != name && name.isNotEmpty) {
       _userName = name;
@@ -94,7 +96,7 @@ class UserProfileProvider extends ChangeNotifier {
 
   void setFavoriteSongs(List<String> songs) {
     if (!_listsAreEqual(_favoriteSongs, songs)) {
-      _favoriteSongs = List.from(songs); // リストを新しくコピー
+      _favoriteSongs = List.from(songs); 
       notifyListeners();
     }
   }
@@ -108,7 +110,7 @@ class UserProfileProvider extends ChangeNotifier {
 
   void setFavoriteGenres(List<String> genres) {
     if (!_listsAreEqual(_favoriteGenres, genres)) {
-      _favoriteGenres = List.from(genres); // リストを新しくコピー
+      _favoriteGenres = List.from(genres); 
       notifyListeners();
     }
   }
@@ -124,7 +126,7 @@ class UserProfileProvider extends ChangeNotifier {
 
   void setSelectedDecadesRanges(List<RangeValues> ranges) {
     if (!_rangesAreEqual(_selectedDecadesRanges, ranges)) {
-      _selectedDecadesRanges = List.from(ranges); // リストを新しくコピー
+      _selectedDecadesRanges = List.from(ranges); 
       notifyListeners();
     }
   }
@@ -158,6 +160,11 @@ class UserProfileProvider extends ChangeNotifier {
       _isSaved = value;
       notifyListeners();
     }
+  }
+
+  void updateProfileImage(String path) {  // 追加
+    setProfileImagePath(path);
+    _selectedPhotos.add(path);
   }
 
   // 内部ユーティリティメソッド

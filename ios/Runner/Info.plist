@@ -45,5 +45,21 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<!-- Firebaseの設定 -->
+	<key>FIREBASE_API_KEY</key>
+	<string>your_firebase_api_key</string>
+	<key>FIREBASE_PROJECT_ID</key>
+	<string>your_firebase_project_id</string>
+	<key>GOOGLE_APP_ID</key>
+	<string>your_google_app_id</string>
+	<key>GOOGLE_CLIENT_ID</key>
+	<string>your_google_client_id</string>
+	<!-- アプリの権限 -->
+	<key>NSCameraUsageDescription</key>
+	<string>カメラの使用を許可する必要があります。</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>フォトライブラリへのアクセスを許可する必要があります。</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>アプリ使用中に位置情報を取得する必要があります。</string>
 </dict>
 </plist>
