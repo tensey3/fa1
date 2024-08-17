@@ -18,7 +18,7 @@ class HomeScreenState extends State<HomeScreen> {
   static final List<Widget> _widgetOptions = <Widget>[
     const ProfileScreen(),
     const MatchScreen(),
-    const CreatePostScreen(), // 中央の投稿ボタンを押した時の画面
+   CreatePostScreen(), // 中央の投稿ボタンを押した時の画面
     const ChatScreen(),
     const EventScreen(),
   ];
