@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'profile/profile_screen.dart'; // ProfileScreenをインポート
 import 'match_screen.dart';
 import 'chat_screen.dart';
-import 'event_screen.dart';
+import 'event/event_screen.dart';
 import 'create_post_screen.dart'; // CreatePostScreenをインポート
 
 class HomeScreen extends StatefulWidget {
