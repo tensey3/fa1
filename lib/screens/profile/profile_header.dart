@@ -20,7 +20,7 @@ class ProfileHeader extends StatelessWidget {
     final provider = Provider.of<UserProfileProvider>(context);
 
     return GestureDetector(
-      onTap: isEditing ? () => _pickImage(context, provider) : null,
+      onTap: isEditing ? () => _showImageOptions(context, provider) : null,
       child: Stack(
         children: [
           _buildProfileImage(provider),
@@ -29,7 +29,7 @@ class ProfileHeader extends StatelessWidget {
               bottom: 0,
               right: 0,
               child: GestureDetector(
-                onTap: () => _pickImage(context, provider),
+                onTap: () => _showImageOptions(context, provider),
                 child: const CircleAvatar(
                   backgroundColor: Colors.orange,
                   radius: 15,
@@ -46,9 +46,48 @@ class ProfileHeader extends StatelessWidget {
     );
   }
 
-  Future<void> _pickImage(BuildContext context, UserProfileProvider provider) async {
+  void _showImageOptions(BuildContext context, UserProfileProvider provider) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: Wrap(
+            children: <Widget>[
+              ListTile(
+                leading: const Icon(Icons.photo_library),
+                title: const Text('ライブラリから選択'),
+                onTap: () {
+                  _pickImage(context, provider, ImageSource.gallery);
+                  Navigator.of(context).pop();
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.camera_alt),
+                title: const Text('カメラで撮影'),
+                onTap: () {
+                  _pickImage(context, provider, ImageSource.camera);
+                  Navigator.of(context).pop();
+                },
+              ),
+              if (provider.profileImagePath.isNotEmpty)
+                ListTile(
+                  leading: const Icon(Icons.delete),
+                  title: const Text('画像を削除'),
+                  onTap: () {
+                    provider.removeProfileImage(); // 画像を削除
+                    Navigator.of(context).pop();
+                  },
+                ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _pickImage(BuildContext context, UserProfileProvider provider, ImageSource source) async {
     final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    final pickedFile = await picker.pickImage(source: source);
 
     if (pickedFile != null) {
       provider.setProfileImagePath(pickedFile.path);
@@ -61,7 +100,7 @@ class ProfileHeader extends StatelessWidget {
       radius: 50,
       backgroundImage: provider.profileImagePath.isNotEmpty
           ? FileImage(File(provider.profileImagePath))
-          : const AssetImage('assets/default_profile.png'),
+          : const AssetImage('assets/default_profile.png'), // デフォルト画像
       backgroundColor: Colors.grey[200],
     );
   }

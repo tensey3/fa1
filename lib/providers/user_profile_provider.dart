@@ -10,7 +10,6 @@ class UserProfileProvider extends ChangeNotifier {
   String _karaokePurpose = '楽しむため';
   String _selectedDamMachine = '';
   String _selectedJoySoundMachine = '';
-
   // その他の情報
   List<String> _favoriteSongs = ['よく歌う曲'];
   List<String> _favoriteGenres = ['ポップ'];
@@ -37,6 +36,7 @@ class UserProfileProvider extends ChangeNotifier {
   bool get isUserNameVisible => _isUserNameVisible;
   bool get isSaved => _isSaved;
 
+
   // メソッド
   void setUserName(String name) {
     if (_userName != name && name.isNotEmpty) {
@@ -57,6 +57,11 @@ class UserProfileProvider extends ChangeNotifier {
       _profileImagePath = path;
       notifyListeners();
     }
+  }
+    // プロフィール画像を削除
+  void removeProfileImage() {
+    _profileImagePath = ''; // 画像パスを空に設定
+    notifyListeners(); // UIに変更を通知
   }
 
   void setKaraokeSkillLevel(String level) {
