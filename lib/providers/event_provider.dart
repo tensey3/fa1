@@ -8,6 +8,8 @@ class Event {
   final DateTime startTime;
   final DateTime endTime;
   final int participants;
+  final DateTime registrationDeadline;  // 応募締め切り日時
+  final String description;
 
   Event({
     required this.title,
@@ -15,6 +17,8 @@ class Event {
     required this.startTime,
     required this.endTime,
     required this.participants,
+    required this.registrationDeadline,  // コンストラクタに追加
+    required this.description,  // コンストラクタに追加
   });
 
   @override
@@ -26,7 +30,9 @@ class Event {
           location == other.location &&
           startTime == other.startTime &&
           endTime == other.endTime &&
-          participants == other.participants;
+          participants == other.participants &&
+          registrationDeadline == other.registrationDeadline &&
+          description == other.description;
 
   @override
   int get hashCode =>
@@ -34,20 +40,35 @@ class Event {
       location.hashCode ^
       startTime.hashCode ^
       endTime.hashCode ^
-      participants.hashCode;
+      participants.hashCode ^
+      registrationDeadline.hashCode ^
+      description.hashCode;  // hashCodeに追加
 }
 
 // EventNotifier クラス: StateNotifier を拡張し、イベントの状態を管理します
 class EventNotifier extends StateNotifier<Map<DateTime, List<Event>>> {
   EventNotifier() : super({});
 
-  void addEvent(DateTime date, String title, String location, DateTime startTime, DateTime endTime, int participants) {
+  void addEvent(
+    DateTime date,
+    String title,
+    String location,
+    DateTime startTime,
+    DateTime endTime,
+    int participants,
+    {
+      required DateTime registrationDeadline,
+      required String description, // description引数を追加
+    }
+  ) {
     final event = Event(
       title: title,
       location: location,
       startTime: startTime,
       endTime: endTime,
       participants: participants,
+      registrationDeadline: registrationDeadline,
+      description: description,  // descriptionを指定
     );
 
     if (state[date] != null) {
@@ -87,7 +108,19 @@ class EventNotifier extends StateNotifier<Map<DateTime, List<Event>>> {
     }
   }
 
-  void updateEvent(DateTime date, Event oldEvent, String newTitle, String newLocation, DateTime newStartTime, DateTime newEndTime, int newParticipants) {
+  void updateEvent(
+    DateTime date,
+    Event oldEvent,
+    String newTitle,
+    String newLocation,
+    DateTime newStartTime,
+    DateTime newEndTime,
+    int newParticipants,
+    {
+      required DateTime registrationDeadline,
+      required String description, // description引数を追加
+    }
+  ) {
     if (state[date] != null) {
       state = {
         ...state,
@@ -99,6 +132,8 @@ class EventNotifier extends StateNotifier<Map<DateTime, List<Event>>> {
               startTime: newStartTime,
               endTime: newEndTime,
               participants: newParticipants,
+              registrationDeadline: registrationDeadline,
+              description: description,  // descriptionを指定
             );
           }
           return e;

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'tournament_details_screen.dart';
-import 'official_tournament_screen.dart';
+import 'tournament_details_screen.dart' as tournament_details;
+import 'official_tournament_screen.dart' as official_tournament;
 
 class PostLogic {
   String searchQuery = '';
@@ -38,14 +38,14 @@ class PostLogic {
   void navigateToTournamentDetails(BuildContext context) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const TournamentDetailsScreen()),
+      MaterialPageRoute(builder: (context) => const tournament_details.TournamentDetailsScreen()),
     );
   }
 
   void navigateToOfficialTournament(BuildContext context) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const OfficialTournamentScreen()),
+      MaterialPageRoute(builder: (context) => const official_tournament.OfficialTournamentScreen()),
     );
   }
 }

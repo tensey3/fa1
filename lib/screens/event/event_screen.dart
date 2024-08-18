@@ -85,21 +85,23 @@ class EventScreenState extends ConsumerState<EventScreen> {
     final dayEvents = events[selectedDay] ?? [];
 
     return Expanded(
-      child: ListView.builder(
-        itemCount: dayEvents.length,
-        itemBuilder: (context, index) {
-          final event = dayEvents[index];
-          return ListTile(
-            title: Text('予定: ${event.title}'),
-            subtitle: Text(
-              '場所: ${event.location}\n'
-              '時間: ${event.startTime.hour}:${event.startTime.minute.toString().padLeft(2, '0')} - ${event.endTime.hour}:${event.endTime.minute.toString().padLeft(2, '0')}\n'
-              '参加人数: ${event.participants}人',
+      child: dayEvents.isEmpty
+          ? const Center(child: Text('この日にイベントはありません'))
+          : ListView.builder(
+              itemCount: dayEvents.length,
+              itemBuilder: (context, index) {
+                final event = dayEvents[index];
+                return ListTile(
+                  title: Text('予定: ${event.title}'),
+                  subtitle: Text(
+                    '場所: ${event.location}\n'
+                    '時間: ${event.startTime.hour}:${event.startTime.minute.toString().padLeft(2, '0')} - ${event.endTime.hour}:${event.endTime.minute.toString().padLeft(2, '0')}\n'
+                    '参加人数: ${event.participants}人',
+                  ),
+                  trailing: _buildEventActions(context, ref, event),
+                );
+              },
             ),
-            trailing: _buildEventActions(context, ref, event),
-          );
-        },
-      ),
     );
   }
 

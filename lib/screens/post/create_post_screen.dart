@@ -1,12 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'post_logic.dart';
+import '../../providers/event_provider.dart';
 
-class CreatePostScreen extends StatelessWidget {
+class CreatePostScreen extends ConsumerStatefulWidget {
   const CreatePostScreen({super.key});
 
   @override
+  CreatePostScreenState createState() => CreatePostScreenState(); // アンダースコアを削除
+}
+
+class CreatePostScreenState extends ConsumerState<CreatePostScreen> { // アンダースコアを削除
+  final logic = PostLogic();
+
+  @override
   Widget build(BuildContext context) {
-    final logic = PostLogic();
+    final events = ref.watch(eventProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -17,7 +26,7 @@ class CreatePostScreen extends StatelessWidget {
           Column(
             children: [
               _buildSearchBar(context, logic),
-              _buildTournamentList(context),  // 大会リストを表示するウィジェット
+              _buildTournamentList(context, events),  // 大会リストを表示するウィジェット
               Expanded(
                 child: Container(
                   color: Colors.grey[200],  // 下半分は空白にしておくか、他のコンテンツを表示
@@ -82,28 +91,23 @@ class CreatePostScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTournamentList(BuildContext context) {
-    // ダミーデータを使用して表示する
-    final tournaments = List.generate(10, (index) => {
-          'name': '大会 $index',
-          'description': 'これは大会 $index の概要です。',
-          'participants': '${index * 10 + 1} / 100 人'
-        });
+  Widget _buildTournamentList(BuildContext context, Map<DateTime, List<Event>> events) {
+    final allEvents = events.values.expand((eventList) => eventList).toList();
 
     return SizedBox(
       height: MediaQuery.of(context).size.height / 2,  // 画面の上半分を使用
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        itemCount: tournaments.length,
+        itemCount: allEvents.length,
         itemBuilder: (context, index) {
-          final tournament = tournaments[index];
-          return _buildTournamentCard(context, tournament);
+          final event = allEvents[index];
+          return _buildTournamentCard(context, event);
         },
       ),
     );
   }
 
-  Widget _buildTournamentCard(BuildContext context, Map<String, String> tournament) {
+  Widget _buildTournamentCard(BuildContext context, Event event) {
     return Container(
       width: 300,
       margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 16.0),
@@ -124,22 +128,40 @@ class CreatePostScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              tournament['name']!,
+              event.title,
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
             Text(
-              tournament['description']!,
+              event.description.isNotEmpty ? event.description : '説明なし',
               style: TextStyle(fontSize: 14, color: Colors.grey[600]),
             ),
             const Spacer(),
             Text(
-              '募集人数: ${tournament['participants']}',
+              '募集人数: ${event.participants}',
               style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
             ),
+            const SizedBox(height: 10),
+            _buildRegistrationDeadlineTimer(event.registrationDeadline), // タイマーを追加
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildRegistrationDeadlineTimer(DateTime registrationDeadline) {
+    return TweenAnimationBuilder<Duration>(
+      duration: registrationDeadline.difference(DateTime.now()),
+      tween: Tween(begin: registrationDeadline.difference(DateTime.now()), end: Duration.zero),
+      onEnd: () {
+        // 応募締め切りが過ぎた場合の処理
+      },
+      builder: (BuildContext context, Duration value, Widget? child) {
+        final minutes = value.inMinutes.remainder(60);
+        final hours = value.inHours.remainder(24);
+        final days = value.inDays;
+        return Text('応募締め切りまで: $days日 $hours時間 $minutes分');
+      },
     );
   }
 }

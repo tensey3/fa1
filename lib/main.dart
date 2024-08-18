@@ -44,6 +44,7 @@ class MyApp extends StatelessWidget {
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate, // これを追加
       ],
       supportedLocales: const [
         Locale('ja', 'JP'), // 日本語のロケールをサポート

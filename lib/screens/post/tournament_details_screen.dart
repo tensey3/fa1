@@ -180,35 +180,43 @@ class _TournamentDetailsScreenState extends ConsumerState<TournamentDetailsScree
     );
   }
 
-  void _saveTournamentDetails() {
-    if (_formKey.currentState?.validate() ?? false) {
-      _formKey.currentState?.save();
+void _saveTournamentDetails() {
+  if (_formKey.currentState?.validate() ?? false) {
+    _formKey.currentState?.save();
 
-      final event = Event(
-        title: tournamentName,
-        location: location.isEmpty ? '未定' : location,
-        startTime: DateTime(
-          eventDate!.year,
-          eventDate!.month,
-          eventDate!.day,
-          startTime?.hour ?? 0,
-          startTime?.minute ?? 0,
-        ),
-        endTime: DateTime(
-          eventDate!.year,
-          eventDate!.month,
-          eventDate!.day,
-          (startTime?.hour ?? 0) + 2,  // デフォルトの終了時間を2時間後に設定
-          startTime?.minute ?? 0,
-        ),
-        participants: participants,
-      );
+    // eventDateがnullの場合のデフォルト値を設定
+    final safeEventDate = eventDate ?? DateTime.now();
+    final safeStartTime = startTime ?? TimeOfDay.now();
+    final safeRegistrationDeadline = registrationDeadline ?? DateTime.now().add(const Duration(days: 1)); // デフォルトで1日後に設定
+    final safeDescription = description.isNotEmpty ? description : 'No description provided'; // デフォルトの説明
 
-      ref.read(eventProvider.notifier).addEvent(
-        eventDate!, event.title, event.location, event.startTime, event.endTime, event.participants
-      );
+    final event = Event(
+      title: tournamentName,
+      location: location.isEmpty ? '未定' : location,
+      startTime: DateTime(
+        safeEventDate.year,
+        safeEventDate.month,
+        safeEventDate.day,
+        safeStartTime.hour,
+        safeStartTime.minute,
+      ),
+      endTime: DateTime(
+        safeEventDate.year,
+        safeEventDate.month,
+        safeEventDate.day,
+        safeStartTime.hour + 2,  // デフォルトの終了時間を2時間後に設定
+        safeStartTime.minute,
+      ),
+      participants: participants,
+      registrationDeadline: safeRegistrationDeadline,  // デフォルトの応募締め切り日時
+      description: safeDescription,  // デフォルトの説明
+    );
 
-      Navigator.pop(context);
-    }
+    ref.read(eventProvider.notifier).addEvent(
+      safeEventDate, event.title, event.location, event.startTime, event.endTime, event.participants, registrationDeadline: safeRegistrationDeadline, description: safeDescription
+    );
+
+    Navigator.pop(context);
   }
+}
 }

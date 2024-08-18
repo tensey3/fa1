@@ -129,6 +129,7 @@ class EventScreenLogic with ChangeNotifier {
                   selectedStartDateTime,
                   selectedEndDateTime,
                   participants,
+                  registrationDeadline: DateTime.now(), description: '',
                 );
                 Navigator.of(context).pop();
               },

@@ -34,6 +34,7 @@ class EventScreenLogic with ChangeNotifier {
     TimeOfDay startTime = event != null ? TimeOfDay.fromDateTime(event.startTime) : TimeOfDay.now();
     TimeOfDay endTime = event != null ? TimeOfDay.fromDateTime(event.endTime) : TimeOfDay(hour: startTime.hour + 1, minute: startTime.minute);
     int participants = event?.participants ?? 1;
+    String description = event?.description ?? ''; // 追加
 
     showDialog(
       context: context,
@@ -48,6 +49,10 @@ class EventScreenLogic with ChangeNotifier {
                   TextField(
                     onChanged: (value) => title = value,
                     decoration: const InputDecoration(hintText: 'イベントタイトル'),
+                  ),
+                  TextField( // 追加: 説明フィールド
+                    onChanged: (value) => description = value,
+                    decoration: const InputDecoration(hintText: 'イベントの説明'),
                   ),
                   ListTile(
                     title: const Text('開始時間'),
@@ -138,6 +143,8 @@ class EventScreenLogic with ChangeNotifier {
                     selectedStartDateTime,
                     selectedEndDateTime,
                     participants,
+                    registrationDeadline: event.registrationDeadline,
+                    description: description, // 追加
                   );
                 } else {
                   eventNotifier.addEvent(
@@ -147,6 +154,8 @@ class EventScreenLogic with ChangeNotifier {
                     selectedStartDateTime,
                     selectedEndDateTime,
                     participants,
+                    registrationDeadline: DateTime.now(), // 必須パラメータを追加
+                    description: description, // 必須パラメータを追加
                   );
                 }
                 Navigator.of(context).pop();
