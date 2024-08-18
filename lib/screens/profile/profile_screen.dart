@@ -2,15 +2,33 @@ import 'dart:io';
 import 'package:fa1/screens/profile/profile_header.dart';
 import 'package:fa1/screens/profile/selection_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart'; // Riverpodをインポート
-import '../../providers/user_profile_provider.dart'; // プロバイダーのインポート
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../providers/user_profile_provider.dart';
 
-class ProfileScreen extends ConsumerWidget { // ConsumerWidgetに変更
+class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) { // refを追加
-    final userProfile = ref.watch(userProfileProvider); // プロバイダーを監視
+  Widget build(BuildContext context, WidgetRef ref) {
+    final userProfile = ref.watch(userProfileProvider); // プロフィール情報を取得
+
+    // 好きな機種の表示内容を決定
+    String favoriteMachine = '未設定';
+    if (userProfile.selectedDamMachine.isNotEmpty && userProfile.selectedJoySoundMachine.isEmpty) {
+      favoriteMachine = 'DAM';
+    } else if (userProfile.selectedDamMachine.isEmpty && userProfile.selectedJoySoundMachine.isNotEmpty) {
+      favoriteMachine = 'JOYSOUND';
+    } else if (userProfile.selectedDamMachine.isNotEmpty && userProfile.selectedJoySoundMachine.isNotEmpty) {
+      favoriteMachine = 'DAM, JOYSOUND';
+    }
+
+    // こだわり機種の表示内容を決定
+    final selectedSpecificMachine = [
+      if (userProfile.selectedDamMachines.isNotEmpty)
+        userProfile.selectedDamMachines.join(', '),
+      if (userProfile.selectedJoySoundMachines.isNotEmpty)
+        userProfile.selectedJoySoundMachines.join(', '),
+    ].join(', ');
 
     return Scaffold(
       appBar: AppBar(
@@ -64,29 +82,24 @@ class ProfileScreen extends ConsumerWidget { // ConsumerWidgetに変更
               ProfileHeader(
                 isEditing: true,
                 onImageSelected: (imageFile) {
-                  ref.read(userProfileProvider.notifier).updateProfileImage(imageFile); // refを使用して状態を更新
+                  ref.read(userProfileProvider.notifier).updateProfileImage(imageFile);
                 },
               ),
               const SizedBox(height: 20),
-              _buildProfileItem(
-                '自己紹介',
-                userProfile.bio, // ここでuserProfileを使用
-                const Color(0xFFF06292),
-                isCentered: true,
-              ),
+              _buildProfileItem('自己紹介', userProfile.bio, const Color(0xFFF06292), isCentered: true),
+              _buildProfileItem('好きな機種', favoriteMachine, const Color(0xFF4DD0E1)),
+
+              if (selectedSpecificMachine.isNotEmpty)
+                _buildProfileItem('こだわり機種', selectedSpecificMachine, const Color(0xFFF06292)),
+
               _buildProfileItem('カラオケスキル', userProfile.karaokeSkillLevel, const Color(0xFFF06292)),
               _buildProfileItem('カラオケの頻度', userProfile.karaokeFrequency, const Color(0xFFF06292)),
               _buildProfileItem('カラオケの目的', userProfile.karaokePurpose, const Color(0xFFF06292)),
-              _buildProfileItem('DAM機種', userProfile.selectedDamMachine, const Color(0xFF4DD0E1)),
-              _buildProfileItem('JOYSOUND機種', userProfile.selectedJoySoundMachine, const Color(0xFFF06292)),
               _buildProfileItem('好きなジャンル', userProfile.favoriteGenres.join(', '), const Color(0xFF4DD0E1)),
               _buildProfileItem('好きな曲', userProfile.favoriteSongs.join(', '), const Color(0xFFF06292)),
 
               const SizedBox(height: 20),
-              const Divider(
-                color: Colors.black38,
-                thickness: 1.0,
-              ),
+              const Divider(color: Colors.black38, thickness: 1.0),
               const SizedBox(height: 10),
               _buildPhotoGrid(userProfile.selectedPhotos),
             ],
@@ -107,13 +120,13 @@ class ProfileScreen extends ConsumerWidget { // ConsumerWidgetに変更
             style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
-              color: Color(0xFFFF7043), // 明るいオレンジ
+              color: Color(0xFFFF7043), // 明るいオレンジ色
             ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 5),
           Container(
-            width: isCentered ? 250 : double.infinity, // セレクションの自己紹介と同じサイズ
+            width: isCentered ? 250 : double.infinity,
             padding: const EdgeInsets.all(8.0),
             decoration: BoxDecoration(
               color: Colors.black12, // 枠の黒塗り
@@ -152,7 +165,7 @@ class ProfileScreen extends ConsumerWidget { // ConsumerWidgetに変更
           return Container(
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: FileImage(File(selectedPhotos[index])), // ここで選択された写真を表示
+                image: FileImage(File(selectedPhotos[index])),
                 fit: BoxFit.cover,
               ),
               borderRadius: BorderRadius.circular(8),

@@ -1,10 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 
-final userProfileProvider = StateNotifierProvider<UserProfileNotifier, UserProfile>((ref) {
-  return UserProfileNotifier();
-});
-
 class UserProfile {
   final String userName;
   final String bio;
@@ -21,21 +17,27 @@ class UserProfile {
   final bool isUserNameVisible;
   final bool isSaved;
 
+  // 追加
+  final List<String> selectedDamMachines;
+  final List<String> selectedJoySoundMachines;
+
   UserProfile({
-    required this.userName,
-    required this.bio,
-    required this.profileImagePath,
-    required this.karaokeSkillLevel,
-    required this.karaokeFrequency,
-    required this.karaokePurpose,
-    required this.selectedDamMachine,
-    required this.selectedJoySoundMachine,
-    required this.favoriteSongs,
-    required this.favoriteGenres,
-    required this.selectedDecadesRanges,
-    required this.selectedPhotos,
-    required this.isUserNameVisible,
-    required this.isSaved,
+    this.userName = 'ユーザー名',
+    this.bio = '',
+    this.profileImagePath = '',
+    this.karaokeSkillLevel = '初心者',
+    this.karaokeFrequency = '週に1回',
+    this.karaokePurpose = '楽しむため',
+    this.selectedDamMachine = '',
+    this.selectedJoySoundMachine = '',
+    this.favoriteSongs = const ['よく歌う曲'],
+    this.favoriteGenres = const ['ポップ'],
+    this.selectedDecadesRanges = const [RangeValues(1940, 2024)],
+    this.selectedPhotos = const [],
+    this.isUserNameVisible = true,
+    this.isSaved = false,
+    this.selectedDamMachines = const [],
+    this.selectedJoySoundMachines = const [],
   });
 
   UserProfile copyWith({
@@ -53,6 +55,8 @@ class UserProfile {
     List<String>? selectedPhotos,
     bool? isUserNameVisible,
     bool? isSaved,
+    List<String>? selectedDamMachines,
+    List<String>? selectedJoySoundMachines,
   }) {
     return UserProfile(
       userName: userName ?? this.userName,
@@ -69,78 +73,88 @@ class UserProfile {
       selectedPhotos: selectedPhotos ?? this.selectedPhotos,
       isUserNameVisible: isUserNameVisible ?? this.isUserNameVisible,
       isSaved: isSaved ?? this.isSaved,
+      selectedDamMachines: selectedDamMachines ?? this.selectedDamMachines,
+      selectedJoySoundMachines: selectedJoySoundMachines ?? this.selectedJoySoundMachines,
     );
   }
 }
 
+// プロファイル情報を管理するStateNotifierクラス
 class UserProfileNotifier extends StateNotifier<UserProfile> {
-  UserProfileNotifier()
-      : super(UserProfile(
-          userName: 'ユーザー名',
-          bio: '',
-          profileImagePath: '',
-          karaokeSkillLevel: '初心者',
-          karaokeFrequency: '週に1回',
-          karaokePurpose: '楽しむため',
-          selectedDamMachine: '',
-          selectedJoySoundMachine: '',
-          favoriteSongs: ['よく歌う曲'],
-          favoriteGenres: ['ポップ'],
-          selectedDecadesRanges: [const RangeValues(1940, 2024)],
-          selectedPhotos: [],
-          isUserNameVisible: true,
-          isSaved: false,
-        ));
+  UserProfileNotifier() : super(UserProfile());
 
+  // ユーザー名の設定
   void setUserName(String name) {
-    state = state.copyWith(userName: name);
+    _updateProfile(userName: name);
   }
 
+  // 自己紹介の設定
   void setBio(String bio) {
-    state = state.copyWith(bio: bio);
+    _updateProfile(bio: bio);
   }
 
+  // プロフィール画像のパスを設定
   void setProfileImagePath(String path) {
-    state = state.copyWith(profileImagePath: path);
+    _updateProfile(profileImagePath: path);
   }
 
+  // プロフィール画像を削除
   void removeProfileImage() {
-    state = state.copyWith(profileImagePath: '');
+    _updateProfile(profileImagePath: '');
   }
 
+  // カラオケスキルレベルの設定
   void setKaraokeSkillLevel(String level) {
-    state = state.copyWith(karaokeSkillLevel: level);
+    _updateProfile(karaokeSkillLevel: level);
   }
 
+  // カラオケの頻度の設定
   void setKaraokeFrequency(String frequency) {
-    state = state.copyWith(karaokeFrequency: frequency);
+    _updateProfile(karaokeFrequency: frequency);
   }
 
+  // カラオケの目的の設定
   void setKaraokePurpose(String purpose) {
-    state = state.copyWith(karaokePurpose: purpose);
+    _updateProfile(karaokePurpose: purpose);
   }
 
+  // DAM機種の設定
   void setSelectedDamMachine(String machine) {
-    state = state.copyWith(selectedDamMachine: machine);
+    _updateProfile(selectedDamMachine: machine);
   }
 
+  // JOYSOUND機種の設定
   void setSelectedJoySoundMachine(String machine) {
-    state = state.copyWith(selectedJoySoundMachine: machine);
+    _updateProfile(selectedJoySoundMachine: machine);
   }
 
+  // よく歌う曲の設定
   void setFavoriteSongs(List<String> songs) {
-    state = state.copyWith(favoriteSongs: List.from(songs));
+    _updateProfile(favoriteSongs: List.from(songs));
   }
 
+  // よく歌う曲を追加
   void addFavoriteSong(String song) {
     final updatedSongs = List<String>.from(state.favoriteSongs)..add(song);
-    state = state.copyWith(favoriteSongs: updatedSongs);
+    _updateProfile(favoriteSongs: updatedSongs);
   }
 
+  // DAM機種リストの設定
+  void setSelectedDamMachines(List<String> machines) {
+    state = state.copyWith(selectedDamMachines: machines);
+  }
+
+  // JOYSOUND機種リストの設定
+  void setSelectedJoySoundMachines(List<String> machines) {
+    state = state.copyWith(selectedJoySoundMachines: machines);
+  }
+
+  // 好きなジャンルの設定
   void setFavoriteGenres(List<String> genres) {
-    state = state.copyWith(favoriteGenres: List.from(genres));
+    _updateProfile(favoriteGenres: List.from(genres));
   }
 
+  // 好きなジャンルのトグル
   void toggleGenre(String genre) {
     final updatedGenres = List<String>.from(state.favoriteGenres);
     if (updatedGenres.contains(genre)) {
@@ -148,41 +162,85 @@ class UserProfileNotifier extends StateNotifier<UserProfile> {
     } else {
       updatedGenres.add(genre);
     }
-    state = state.copyWith(favoriteGenres: updatedGenres);
+    _updateProfile(favoriteGenres: updatedGenres);
   }
 
+  // 年代範囲の設定
   void setSelectedDecadesRanges(List<RangeValues> ranges) {
-    state = state.copyWith(selectedDecadesRanges: List.from(ranges));
+    _updateProfile(selectedDecadesRanges: List.from(ranges));
   }
 
+  // 年代範囲を追加
   void addDecadeRange(RangeValues range) {
-    final updatedRanges = List<RangeValues>.from(state.selectedDecadesRanges)
-      ..add(range);
-    state = state.copyWith(selectedDecadesRanges: updatedRanges);
+    final updatedRanges = List<RangeValues>.from(state.selectedDecadesRanges)..add(range);
+    _updateProfile(selectedDecadesRanges: updatedRanges);
   }
 
+  // 年代範囲を更新
   void updateDecadeRange(int index, RangeValues range) {
-    final updatedRanges = List<RangeValues>.from(state.selectedDecadesRanges)
-      ..[index] = range;
-    state = state.copyWith(selectedDecadesRanges: updatedRanges);
+    final updatedRanges = List<RangeValues>.from(state.selectedDecadesRanges)..[index] = range;
+    _updateProfile(selectedDecadesRanges: updatedRanges);
   }
 
+  // 年代範囲を削除
   void removeDecadeRange(int index) {
-    final updatedRanges = List<RangeValues>.from(state.selectedDecadesRanges)
-      ..removeAt(index);
-    state = state.copyWith(selectedDecadesRanges: updatedRanges);
+    final updatedRanges = List<RangeValues>.from(state.selectedDecadesRanges)..removeAt(index);
+    _updateProfile(selectedDecadesRanges: updatedRanges);
   }
 
+  // ユーザー名の表示/非表示をトグル
   void toggleUserNameVisibility() {
-    state = state.copyWith(isUserNameVisible: !state.isUserNameVisible);
+    _updateProfile(isUserNameVisible: !state.isUserNameVisible);
   }
 
+  // プロフィールが保存されたかどうかを設定
   void setSaved(bool value) {
-    state = state.copyWith(isSaved: value);
+    _updateProfile(isSaved: value);
   }
 
+  // プロフィール画像の更新
   void updateProfileImage(String path) {
     final updatedPhotos = List<String>.from(state.selectedPhotos)..add(path);
-    state = state.copyWith(profileImagePath: path, selectedPhotos: updatedPhotos);
+    _updateProfile(profileImagePath: path, selectedPhotos: updatedPhotos);
+  }
+
+  // プロファイルを更新するための内部ヘルパーメソッド
+  void _updateProfile({
+    String? userName,
+    String? bio,
+    String? profileImagePath,
+    String? karaokeSkillLevel,
+    String? karaokeFrequency,
+    String? karaokePurpose,
+    String? selectedDamMachine,
+    String? selectedJoySoundMachine,
+    List<String>? favoriteSongs,
+    List<String>? favoriteGenres,
+    List<RangeValues>? selectedDecadesRanges,
+    List<String>? selectedPhotos,
+    bool? isUserNameVisible,
+    bool? isSaved,
+  }) {
+    state = state.copyWith(
+      userName: userName,
+      bio: bio,
+      profileImagePath: profileImagePath,
+      karaokeSkillLevel: karaokeSkillLevel,
+      karaokeFrequency: karaokeFrequency,
+      karaokePurpose: karaokePurpose,
+      selectedDamMachine: selectedDamMachine,
+      selectedJoySoundMachine: selectedJoySoundMachine,
+      favoriteSongs: favoriteSongs,
+      favoriteGenres: favoriteGenres,
+      selectedDecadesRanges: selectedDecadesRanges,
+      selectedPhotos: selectedPhotos,
+      isUserNameVisible: isUserNameVisible,
+      isSaved: isSaved,
+    );
   }
 }
+
+// プロバイダーの定義
+final userProfileProvider = StateNotifierProvider<UserProfileNotifier, UserProfile>((ref) {
+  return UserProfileNotifier();
+});

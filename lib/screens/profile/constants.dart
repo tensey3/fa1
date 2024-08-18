@@ -39,4 +39,12 @@ class Constants {
     'JOYSOUND MAX GO',
     'JOYSOUND 響Ⅱ',
   ];
+
+  // 機種カテゴリーの選択肢
+  static const List<String> machineCategories = [
+    'DAM',
+    'JOYSOUND',
+    '両方',
+    'こだわりはない／どちらでもいい',
+  ];
 }
