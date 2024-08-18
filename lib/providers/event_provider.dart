@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 // Event クラス: 各イベントのデータ構造を定義します
@@ -16,7 +17,6 @@ class Event {
     required this.participants,
   });
 
-  // Event クラスの等価性をチェックするために == 演算子と hashCode をオーバーライド
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -41,7 +41,6 @@ class Event {
 class EventNotifier extends StateNotifier<Map<DateTime, List<Event>>> {
   EventNotifier() : super({});
 
-  // イベントを追加するメソッド
   void addEvent(DateTime date, String title, String location, DateTime startTime, DateTime endTime, int participants) {
     final event = Event(
       title: title,
@@ -62,14 +61,20 @@ class EventNotifier extends StateNotifier<Map<DateTime, List<Event>>> {
         date: [event],
       };
     }
+
+    // デバッグ用ログ
+    if (kDebugMode) {
+      print("Event added: $title on $date");
+    }
+    if (kDebugMode) {
+      print("Current state: $state");
+    }
   }
 
-  // イベントを削除するメソッド
   void removeEvent(DateTime date, Event event) {
     if (state[date] != null) {
       final updatedEvents = state[date]!.where((e) => e != event).toList();
       if (updatedEvents.isEmpty) {
-        // その日にイベントが残っていなければ、キーごと削除
         final newState = Map<DateTime, List<Event>>.from(state);
         newState.remove(date);
         state = newState;
@@ -82,7 +87,6 @@ class EventNotifier extends StateNotifier<Map<DateTime, List<Event>>> {
     }
   }
 
-  // イベントを更新するメソッド
   void updateEvent(DateTime date, Event oldEvent, String newTitle, String newLocation, DateTime newStartTime, DateTime newEndTime, int newParticipants) {
     if (state[date] != null) {
       state = {

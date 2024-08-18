@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
-import 'create_post_logic.dart' as logic;
-import 'tournament_details_screen.dart';
+import 'post_logic.dart';
 
 class CreatePostScreen extends StatelessWidget {
   const CreatePostScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final logic = PostLogic();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('大会一覧'),
@@ -15,7 +16,7 @@ class CreatePostScreen extends StatelessWidget {
         children: [
           Column(
             children: [
-              _buildSearchBar(context),
+              _buildSearchBar(context, logic),
               _buildTournamentList(context),  // 大会リストを表示するウィジェット
               Expanded(
                 child: Container(
@@ -29,12 +30,7 @@ class CreatePostScreen extends StatelessWidget {
             bottom: 16,
             child: FloatingActionButton(
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const TournamentDetailsScreen(),
-                  ),
-                );
+                logic.navigateToTournamentDetails(context);
               },
               tooltip: '大会を開く',
               child: const Icon(Icons.add),
@@ -45,12 +41,7 @@ class CreatePostScreen extends StatelessWidget {
             bottom: 16,
             child: ElevatedButton(
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const logic.TournamentDetailsScreen(),
-                  ),
-                );
+                logic.navigateToOfficialTournament(context);
               },
               child: const Text('公式大会'),
             ),
@@ -60,7 +51,7 @@ class CreatePostScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSearchBar(BuildContext context) {
+  Widget _buildSearchBar(BuildContext context, PostLogic logic) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Row(
@@ -76,15 +67,14 @@ class CreatePostScreen extends StatelessWidget {
                 ),
               ),
               onChanged: (value) {
-                // 検索クエリを更新するロジックを呼び出す
-                logic.CreatePostLogic().updateSearchQuery(value);
+                logic.updateSearchQuery(value);
               },
             ),
           ),
           IconButton(
             icon: const Icon(Icons.filter_list),
             onPressed: () {
-              logic.CreatePostLogic().showFilterOptions(context);
+              logic.showFilterOptions(context);
             },
           ),
         ],

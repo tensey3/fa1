@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'tournament_details_screen.dart';
+import 'official_tournament_screen.dart';
 
-class CreatePostLogic {
+class PostLogic {
   String searchQuery = '';
 
   void updateSearchQuery(String query) {
@@ -39,20 +41,11 @@ class CreatePostLogic {
       MaterialPageRoute(builder: (context) => const TournamentDetailsScreen()),
     );
   }
-}
 
-class TournamentDetailsScreen extends StatelessWidget {
-  const TournamentDetailsScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('大会の詳細設定'),
-      ),
-      body: const Center(
-        child: Text('ここに大会の詳細設定を行うUIを配置'),
-      ),
+  void navigateToOfficialTournament(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const OfficialTournamentScreen()),
     );
   }
 }

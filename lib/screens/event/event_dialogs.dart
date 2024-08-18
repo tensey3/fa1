@@ -2,165 +2,173 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/event_provider.dart';
 
-Future<void> showEventDialog({
-  required BuildContext context,
-  required WidgetRef ref,
-  required DateTime selectedDay,
-  Event? event,
-}) async {
-  final isEditing = event != null;
-  String eventTitle = isEditing ? event.title : '';
-  String eventLocation = isEditing ? event.location : '';
-  TimeOfDay startTime = isEditing ? TimeOfDay.fromDateTime(event.startTime) : TimeOfDay.now();
-  TimeOfDay endTime = isEditing ? TimeOfDay.fromDateTime(event.endTime) : TimeOfDay(hour: startTime.hour + 1, minute: startTime.minute);
-  int participants = isEditing ? event.participants : 1;
+class EventScreenLogic with ChangeNotifier {
+  DateTime _selectedDay = DateTime.now();
+  DateTime _focusedDay = DateTime.now();
 
-  await showDialog(
-    context: context,
-    builder: (context) {
-      return AlertDialog(
-        title: Text(isEditing ? '予定を編集' : '予定を追加'),
-        content: StatefulBuilder(
-          builder: (BuildContext context, StateSetter setState) {
-            return SingleChildScrollView(
-              child: Column(
+  DateTime get selectedDay => _selectedDay;
+  DateTime get focusedDay => _focusedDay;
+
+  void onDaySelected(DateTime selectedDay, DateTime focusedDay) {
+    _selectedDay = selectedDay;
+    _focusedDay = focusedDay;
+    notifyListeners();
+  }
+
+  void onPageChanged(DateTime focusedDay) {
+    _focusedDay = focusedDay;
+    notifyListeners();
+  }
+
+  void showAddEvent(BuildContext context, WidgetRef ref) {
+    final eventNotifier = ref.read(eventProvider.notifier);
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        String title = '';
+        TimeOfDay startTime = TimeOfDay.now();
+        TimeOfDay endTime = TimeOfDay(hour: startTime.hour + 1, minute: startTime.minute);
+        int participants = 1;
+
+        return AlertDialog(
+          title: const Text('予定を追加'),
+          content: StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) {
+              return Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  _buildTextField('予定のタイトル', eventTitle, (value) => eventTitle = value),
-                  _buildTextField('場所', eventLocation, (value) => eventLocation = value),
-                  _buildTimePickerTile(context, '開始時間', startTime, (picked) {
-                    setState(() {
-                      startTime = picked;
-                      if (endTime.hour < startTime.hour || (endTime.hour == startTime.hour && endTime.minute <= startTime.minute)) {
-                        endTime = TimeOfDay(hour: startTime.hour + 1, minute: startTime.minute);
-                      }
-                    });
-                  }),
-                  _buildTimePickerTile(context, '終了時間', endTime, (picked) {
-                    setState(() {
-                      if (picked.hour > startTime.hour || (picked.hour == startTime.hour && picked.minute > startTime.minute)) {
-                        endTime = picked;
-                      } else {
-                        _showSnackBar(context, '終了時間は開始時間より後でなければなりません');
-                      }
-                    });
-                  }),
-                  _buildParticipantsDropdown(participants, (newValue) {
-                    setState(() {
-                      participants = newValue!;
-                    });
-                  }),
+                  TextField(
+                    onChanged: (value) => title = value,
+                    decoration: const InputDecoration(hintText: 'イベントタイトル'),
+                  ),
+                  ListTile(
+                    title: const Text('開始時間'),
+                    trailing: TextButton(
+                      child: Text(startTime.format(context)),
+                      onPressed: () async {
+                        final TimeOfDay? picked = await showTimePicker(
+                          context: context,
+                          initialTime: startTime,
+                        );
+                        if (picked != null) {
+                          setState(() {
+                            startTime = picked;
+                          });
+                        }
+                      },
+                    ),
+                  ),
+                  ListTile(
+                    title: const Text('終了時間'),
+                    trailing: TextButton(
+                      child: Text(endTime.format(context)),
+                      onPressed: () async {
+                        final TimeOfDay? picked = await showTimePicker(
+                          context: context,
+                          initialTime: endTime,
+                        );
+                        if (picked != null) {
+                          setState(() {
+                            endTime = picked;
+                          });
+                        }
+                      },
+                    ),
+                  ),
+                  ListTile(
+                    title: const Text('参加人数'),
+                    trailing: DropdownButton<int>(
+                      value: participants,
+                      onChanged: (int? newValue) {
+                        setState(() {
+                          participants = newValue!;
+                        });
+                      },
+                      items: List.generate(10, (index) => index + 1)
+                          .map<DropdownMenuItem<int>>((int value) {
+                        return DropdownMenuItem<int>(
+                          value: value,
+                          child: Text(value.toString()),
+                        );
+                      }).toList(),
+                    ),
+                  ),
                 ],
-              ),
-            );
-          },
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('キャンセル'),
+              );
+            },
           ),
-          ElevatedButton(
-            onPressed: () {
-              if (eventTitle.isEmpty || eventLocation.isEmpty) {
-                _showSnackBar(context, 'タイトルと場所は必須です');
-              } else {
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('キャンセル'),
+            ),
+            ElevatedButton(
+              onPressed: () {
                 final selectedStartDateTime = DateTime(
-                  selectedDay.year,
-                  selectedDay.month,
-                  selectedDay.day,
+                  _selectedDay.year,
+                  _selectedDay.month,
+                  _selectedDay.day,
                   startTime.hour,
                   startTime.minute,
                 );
                 final selectedEndDateTime = DateTime(
-                  selectedDay.year,
-                  selectedDay.month,
-                  selectedDay.day,
+                  _selectedDay.year,
+                  _selectedDay.month,
+                  _selectedDay.day,
                   endTime.hour,
                   endTime.minute,
                 );
 
-                if (isEditing) {
-                  ref.read(eventProvider.notifier).updateEvent(
-                    selectedDay,
-                    event,
-                    eventTitle,
-                    eventLocation,
-                    selectedStartDateTime,
-                    selectedEndDateTime,
-                    participants,
-                  );
-                } else {
-                  ref.read(eventProvider.notifier).addEvent(
-                    selectedDay,
-                    eventTitle,
-                    eventLocation,
-                    selectedStartDateTime,
-                    selectedEndDateTime,
-                    participants,
-                  );
-                }
-
+                eventNotifier.addEvent(
+                  _selectedDay,
+                  title,
+                  '場所',
+                  selectedStartDateTime,
+                  selectedEndDateTime,
+                  participants,
+                );
                 Navigator.of(context).pop();
-              }
-            },
-            child: Text(isEditing ? '保存' : '追加'),
-          ),
-        ],
-      );
-    },
-  );
-}
-
-Widget _buildTextField(String label, String initialValue, Function(String) onChanged) {
-  return TextField(
-    decoration: InputDecoration(labelText: label),
-    controller: TextEditingController(text: initialValue),
-    onChanged: onChanged,
-  );
-}
-
-Widget _buildTimePickerTile(
-  BuildContext context,
-  String label,
-  TimeOfDay initialTime,
-  Function(TimeOfDay) onTimePicked,
-) {
-  return ListTile(
-    title: Text(label),
-    trailing: TextButton(
-      child: Text(initialTime.format(context)),
-      onPressed: () async {
-        final TimeOfDay? picked = await showTimePicker(
-          context: context,
-          initialTime: initialTime,
+              },
+              child: const Text('追加'),
+            ),
+          ],
         );
-        if (picked != null) {
-          onTimePicked(picked);
-        }
       },
-    ),
-  );
-}
+    );
+  }
 
-Widget _buildParticipantsDropdown(int participants, Function(int?) onChanged) {
-  return ListTile(
-    title: const Text('参加人数'),
-    trailing: DropdownButton<int>(
-      value: participants,
-      onChanged: onChanged,
-      items: List.generate(10, (index) => index + 1).map<DropdownMenuItem<int>>((int value) {
-        return DropdownMenuItem<int>(
-          value: value,
-          child: Text(value.toString()),
+  void showEditEvent(BuildContext context, WidgetRef ref, Event event) {
+    // イベント編集のロジックを記入
+  }
+
+  void showDeleteEventDialog(BuildContext context, WidgetRef ref, Event event) {
+    final eventNotifier = ref.read(eventProvider.notifier);
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('削除確認'),
+          content: const Text('このイベントを削除してもよろしいですか？'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                eventNotifier.removeEvent(_selectedDay, event);
+                Navigator.of(context).pop();
+              },
+              child: const Text('はい'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('いいえ'),
+            ),
+          ],
         );
-      }).toList(),
-    ),
-  );
-}
-
-void _showSnackBar(BuildContext context, String message) {
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(content: Text(message)),
-  );
+      },
+    );
+  }
 }

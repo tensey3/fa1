@@ -17,8 +17,8 @@ class EventScreenState extends ConsumerState<EventScreen> {
   @override
   Widget build(BuildContext context) {
     final events = ref.watch(eventProvider);
-    final selectedDay = logic.getSelectedDay();
-    final focusedDay = logic.getFocusedDay();
+    final selectedDay = logic.selectedDay;
+    final focusedDay = logic.focusedDay;
 
     return Scaffold(
       appBar: AppBar(
@@ -44,7 +44,7 @@ class EventScreenState extends ConsumerState<EventScreen> {
   Widget _buildCalendar(BuildContext context, Map<DateTime, List<Event>> events, DateTime selectedDay, DateTime focusedDay) {
     return TableCalendar(
       locale: 'ja_JP',
-      firstDay: DateTime.utc(2020, 1, 1),
+      firstDay: DateTime.utc(2024, 1, 1),
       lastDay: DateTime.utc(2030, 12, 31),
       focusedDay: focusedDay,
       selectedDayPredicate: (day) {

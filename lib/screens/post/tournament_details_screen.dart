@@ -16,6 +16,8 @@ class _TournamentDetailsScreenState extends ConsumerState<TournamentDetailsScree
 
   String tournamentName = '';
   DateTime? eventDate;
+  TimeOfDay? startTime;
+  String location = '';
   DateTime? registrationDeadline;
   int participants = 0;
   String message = '';
@@ -49,6 +51,24 @@ class _TournamentDetailsScreenState extends ConsumerState<TournamentDetailsScree
                 label: '開催日',
                 selectedDate: eventDate,
                 onDateSelected: (date) => setState(() => eventDate = date),
+              ),
+              const SizedBox(height: 16),
+              _buildTimePicker(
+                context: context,
+                label: '開始時間',
+                selectedTime: startTime,
+                onTimeSelected: (time) => setState(() => startTime = time),
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                decoration: const InputDecoration(labelText: '場所'),
+                onSaved: (value) => location = value ?? '',
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return '場所を入力してください';
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 16),
               _buildDatePicker(
@@ -129,15 +149,58 @@ class _TournamentDetailsScreenState extends ConsumerState<TournamentDetailsScree
     );
   }
 
+  Widget _buildTimePicker({
+    required BuildContext context,
+    required String label,
+    required TimeOfDay? selectedTime,
+    required ValueChanged<TimeOfDay> onTimeSelected,
+  }) {
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            selectedTime != null
+                ? selectedTime.format(context)
+                : '時間を選択してください',
+          ),
+        ),
+        TextButton(
+          onPressed: () async {
+            final TimeOfDay? pickedTime = await showTimePicker(
+              context: context,
+              initialTime: selectedTime ?? TimeOfDay.now(),
+            );
+            if (pickedTime != null) {
+              onTimeSelected(pickedTime);
+            }
+          },
+          child: const Text('時間を選択'),
+        ),
+      ],
+    );
+  }
+
   void _saveTournamentDetails() {
     if (_formKey.currentState?.validate() ?? false) {
       _formKey.currentState?.save();
 
       final event = Event(
         title: tournamentName,
-        location: '未定',
-        startTime: eventDate!,
-        endTime: eventDate!.add(const Duration(hours: 2)),  // デフォルトの終了時間を設定
+        location: location.isEmpty ? '未定' : location,
+        startTime: DateTime(
+          eventDate!.year,
+          eventDate!.month,
+          eventDate!.day,
+          startTime?.hour ?? 0,
+          startTime?.minute ?? 0,
+        ),
+        endTime: DateTime(
+          eventDate!.year,
+          eventDate!.month,
+          eventDate!.day,
+          (startTime?.hour ?? 0) + 2,  // デフォルトの終了時間を2時間後に設定
+          startTime?.minute ?? 0,
+        ),
         participants: participants,
       );
 
