@@ -1,6 +1,6 @@
-import 'dart:io';
 import 'package:fa1/screens/profile/profile_header.dart';
 import 'package:fa1/screens/profile/selection_screen.dart';
+import 'package:fa1/screens/profile/sub_photos.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/user_profile_provider.dart';
@@ -10,7 +10,7 @@ class ProfileScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final userProfile = ref.watch(userProfileProvider); // プロフィール情報を取得
+    final userProfile = ref.watch(userProfileProvider);
 
     // 好きな機種の表示内容を決定
     String favoriteMachine = '未設定';
@@ -101,7 +101,12 @@ class ProfileScreen extends ConsumerWidget {
               const SizedBox(height: 20),
               const Divider(color: Colors.black38, thickness: 1.0),
               const SizedBox(height: 10),
-              _buildPhotoGrid(userProfile.selectedPhotos),
+              SubPhotos(
+                isEditing: true, // サブ写真を編集可能
+                onSubImageSelected: (imageFile) {
+                  ref.read(userProfileProvider.notifier).addSubPhoto(imageFile);
+                },
+              ),
             ],
           ),
         ),
@@ -141,38 +146,6 @@ class ProfileScreen extends ConsumerWidget {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildPhotoGrid(List<String> selectedPhotos) {
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3,
-        crossAxisSpacing: 8.0,
-        mainAxisSpacing: 8.0,
-        childAspectRatio: 1.0,
-      ),
-      itemCount: selectedPhotos.isEmpty ? 9 : selectedPhotos.length,
-      itemBuilder: (context, index) {
-        if (selectedPhotos.isEmpty) {
-          return Container(
-            color: Colors.grey[300],
-            child: const Icon(Icons.photo, color: Colors.grey),
-          );
-        } else {
-          return Container(
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: FileImage(File(selectedPhotos[index])),
-                fit: BoxFit.cover,
-              ),
-              borderRadius: BorderRadius.circular(8),
-            ),
-          );
-        }
-      },
     );
   }
 }

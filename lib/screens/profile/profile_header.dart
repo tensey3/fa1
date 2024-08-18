@@ -1,8 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'dart:io';
-import 'package:image_picker/image_picker.dart';
-import '../../providers/user_profile_provider.dart'; // 正しいパスでインポート
+import 'icon_change_logic.dart';
+import '../../providers/user_profile_provider.dart';
 
 class ProfileHeader extends ConsumerWidget {
   final bool isEditing;
@@ -17,19 +18,19 @@ class ProfileHeader extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final userProfile = ref.watch(userProfileProvider); // プロバイダーを監視
+    final userProfile = ref.watch(userProfileProvider);
 
     return GestureDetector(
-      onTap: isEditing ? () => _showImageOptions(context, ref) : null,
+      onTap: isEditing ? () => _showIconChangeOptions(context) : null,
       child: Stack(
         children: [
-          _buildProfileImage(userProfile.profileImagePath), // プロフィール画像を構築
+          _buildProfileImage(userProfile.profileImagePath),
           if (isEditing)
             Positioned(
               bottom: 0,
               right: 0,
               child: GestureDetector(
-                onTap: () => _showImageOptions(context, ref),
+                onTap: () => _showIconChangeOptions(context),
                 child: const CircleAvatar(
                   backgroundColor: Colors.orange,
                   radius: 15,
@@ -46,57 +47,8 @@ class ProfileHeader extends ConsumerWidget {
     );
   }
 
-  void _showImageOptions(BuildContext context, WidgetRef ref) {
-    final provider = ref.read(userProfileProvider.notifier); // 状態を取得
-
-    showModalBottomSheet(
-      context: context,
-      builder: (BuildContext context) {
-        return SafeArea(
-          child: Wrap(
-            children: <Widget>[
-              ListTile(
-                leading: const Icon(Icons.photo_library),
-                title: const Text('ライブラリから選択'),
-                onTap: () {
-                  _pickImage(context, ref, ImageSource.gallery);
-                  Navigator.of(context).pop();
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.camera_alt),
-                title: const Text('カメラで撮影'),
-                onTap: () {
-                  _pickImage(context, ref, ImageSource.camera);
-                  Navigator.of(context).pop();
-                },
-              ),
-              // ignore: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
-              if (provider.state.profileImagePath.isNotEmpty)
-                ListTile(
-                  leading: const Icon(Icons.delete),
-                  title: const Text('画像を削除'),
-                  onTap: () {
-                    provider.removeProfileImage();
-                    Navigator.of(context).pop();
-                  },
-                ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Future<void> _pickImage(BuildContext context, WidgetRef ref, ImageSource source) async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: source);
-
-    if (pickedFile != null) {
-      final provider = ref.read(userProfileProvider.notifier);
-      provider.setProfileImagePath(pickedFile.path);
-      onImageSelected(pickedFile.path);
-    }
+  void _showIconChangeOptions(BuildContext context) {
+    IconChangeLogic(context).showIconChangeOptions();
   }
 
   Widget _buildProfileImage(String imagePath) {
@@ -104,9 +56,8 @@ class ProfileHeader extends ConsumerWidget {
       radius: 50,
       backgroundImage: imagePath.isNotEmpty
           ? FileImage(File(imagePath)) as ImageProvider
-          : const AssetImage('/Users/kikuchitensei/fa1/assets/images/null_icon.png'),
+          : const AssetImage('assets/images/null_icon.png'),
       backgroundColor: Colors.grey[200],
     );
   }
-
 }

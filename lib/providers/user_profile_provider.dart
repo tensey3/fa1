@@ -92,6 +92,15 @@ class UserProfileNotifier extends StateNotifier<UserProfile> {
   void setBio(String bio) {
     _updateProfile(bio: bio);
   }
+  void addSubPhoto(String path) {
+  final updatedPhotos = List<String>.from(state.selectedPhotos)..add(path);
+  state = state.copyWith(selectedPhotos: updatedPhotos);
+}
+
+void removeSubPhoto(int index) {
+  final updatedPhotos = List<String>.from(state.selectedPhotos)..removeAt(index);
+  state = state.copyWith(selectedPhotos: updatedPhotos);
+}
 
   // プロフィール画像のパスを設定
   void setProfileImagePath(String path) {

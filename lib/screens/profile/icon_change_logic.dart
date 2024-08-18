@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../providers/user_profile_provider.dart';
 
 class IconChangeLogic {
   final BuildContext context;
@@ -49,7 +51,10 @@ class IconChangeLogic {
 
     if (pickedFile != null) {
       // アイコンを更新する処理
-      // 例えば、ユーザープロフィールに画像パスを保存するなど
+      // ignore: use_build_context_synchronously
+      final ref = ProviderScope.containerOf(context, listen: false);
+      ref.read(userProfileProvider.notifier).setProfileImagePath(pickedFile.path);
+
       if (context.mounted) {
         Navigator.of(context).pop(); // ボトムシートを閉じる
       }
@@ -58,6 +63,9 @@ class IconChangeLogic {
 
   // アイコンを削除するメソッド
   void removeIcon() {
+    final ref = ProviderScope.containerOf(context, listen: false);
+    ref.read(userProfileProvider.notifier).removeProfileImage();
+
     if (context.mounted) {
       Navigator.of(context).pop(); // ボトムシートを閉じる
     }
